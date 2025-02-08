@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InventoryItem;
+use Illuminate\Http\Request;
+
+class InventoryController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = InventoryItem::query();
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhere('quantity', 'like', '%' . $search . '%')
+                    ->orWhere('category', 'like', '%' . $search . '%')
+                    ->orWhere('estimated_price', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('sort')) {
+            $query->orderBy($request->sort);
+        }
+
+        return response()->json($query->get());
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'quantity' => 'required|integer',
+            'category' => 'nullable|string|max:255',
+            'estimated_price' => 'nullable|numeric',
+        ]);
+
+        $item = InventoryItem::create($validatedData);
+        return response()->json($item, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'quantity' => 'required|integer',
+            'category' => 'nullable|string|max:255',
+            'estimated_price' => 'nullable|numeric',
+        ]);
+
+        $item = InventoryItem::findOrFail($id);
+        $item->update($validatedData);
+        return response()->json($item);
+    }
+
+    public function destroy($id)
+    {
+        InventoryItem::destroy($id);
+        return response()->json(null, 204);
+    }
+}
