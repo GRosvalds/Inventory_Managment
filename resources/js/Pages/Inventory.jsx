@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
 
 function Inventory() {
+    const { auth } = usePage().props;
     const [items, setItems] = useState([]);
+    const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
     const [newItem, setNewItem] = useState({ name: '', description: '', quantity: 0, category: '', estimated_price: 0 });
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLeaseModalOpen, setIsLeaseModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentItemId, setCurrentItemId] = useState(null);
+    const [leaseDetails, setLeaseDetails] = useState({ userId: '', leaseDuration: '' });
 
     useEffect(() => {
         fetchItems();
+        fetchUsers();
     }, [search]);
 
     const fetchItems = async () => {
         const response = await axios.get('/api/inventory', { params: { search } });
         setItems(response.data);
+    };
+
+    const fetchUsers = async () => {
+        try {
+            const response = await axios.get('/api/users');
+            setUsers(response.data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
     };
 
     const openModal = (item = null) => {
@@ -32,8 +46,14 @@ function Inventory() {
         setIsModalOpen(true);
     };
 
+    const openLeaseModal = (item) => {
+        setCurrentItemId(item.id);
+        setIsLeaseModalOpen(true);
+    };
+
     const closeModal = () => {
         setIsModalOpen(false);
+        setIsLeaseModalOpen(false);
     };
 
     const handleSubmit = async () => {
@@ -46,9 +66,19 @@ function Inventory() {
         closeModal();
     };
 
+    const handleLeaseSubmit = async () => {
+        await axios.post(`/api/inventory/${currentItemId}/lease`, leaseDetails);
+        fetchItems();
+        closeModal();
+    };
+
     const deleteItem = async (id) => {
         await axios.delete(`/api/inventory/${id}`);
         fetchItems();
+    };
+
+    const isItemLeasedByCurrentUser = (item) => {
+        return item.users && item.users.some(user => user.id === auth.user.id);
     };
 
     return (
@@ -68,6 +98,7 @@ function Inventory() {
                     </div>
                     <div className="flex justify-center mb-6">
                         <button onClick={() => openModal()} className="p-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition duration-300">Add Item</button>
+                        <a href={`/user/${auth.user.id}/leased-items`} className="p-3 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ml-2">View Leased Items</a>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full bg-white shadow-lg rounded-lg">
@@ -92,6 +123,9 @@ function Inventory() {
                                     <td className="py-3 px-4">
                                         <button onClick={() => openModal(item)} className="p-2 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ml-2">Edit</button>
                                         <button onClick={() => deleteItem(item.id)} className="p-2 bg-red-500 text-white rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ml-2">Delete</button>
+                                        {!isItemLeasedByCurrentUser(item) && (
+                                            <button onClick={() => openLeaseModal(item)} className="p-2 bg-yellow-500 text-white rounded-lg shadow-lg hover:bg-yellow-600 transition duration-300 ml-2">Lease</button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -142,6 +176,35 @@ function Inventory() {
                             />
                             <div className="flex justify-end">
                                 <button type="submit" className="p-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition duration-300">{isEditing ? 'Update' : 'Add'}</button>
+                                <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg shadow-lg hover:bg-gray-600 transition duration-300 ml-2">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {isLeaseModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+                        <h2 className="text-2xl font-bold mb-4">Lease Item</h2>
+                        <form onSubmit={(e) => { e.preventDefault(); handleLeaseSubmit(); }}>
+                            <select
+                                value={leaseDetails.userId}
+                                onChange={(e) => setLeaseDetails({ ...leaseDetails, userId: e.target.value })}
+                                className="p-3 border rounded-lg shadow-sm w-full mb-4"
+                            >
+                                <option value="">Select User</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>{user.name}</option>
+                                ))}
+                            </select>
+                            <input
+                                type="date"
+                                value={leaseDetails.leaseDuration}
+                                onChange={(e) => setLeaseDetails({ ...leaseDetails, leaseDuration: e.target.value })}
+                                className="p-3 border rounded-lg shadow-sm w-full mb-4"
+                            />
+                            <div className="flex justify-end">
+                                <button type="submit" className="p-3 bg-yellow-500 text-white rounded-lg shadow-lg hover:bg-yellow-600 transition duration-300">Lease</button>
                                 <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg shadow-lg hover:bg-gray-600 transition duration-300 ml-2">Close</button>
                             </div>
                         </form>

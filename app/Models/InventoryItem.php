@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class InventoryItem extends Model
 {
@@ -13,4 +14,9 @@ class InventoryItem extends Model
         'category',
         'estimated_price',
     ];
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'item_user')->withPivot('lease_until')->withTimestamps();
+    }
 }

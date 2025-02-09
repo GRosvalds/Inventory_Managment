@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
@@ -62,5 +63,26 @@ class InventoryController extends Controller
     {
         InventoryItem::destroy($id);
         return response()->json(null, 204);
+    }
+
+    public function lease(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'userId' => 'required|exists:users,id',
+            'leaseDuration' => 'required|date',
+        ]);
+
+        $item = InventoryItem::findOrFail($id);
+        $item->users()->attach($validatedData['userId'], ['lease_until' => $validatedData['leaseDuration']]);
+
+        return response()->json($item);
+    }
+
+    public function getUserLeasedItems($id)
+    {
+        $user = User::findOrFail($id);
+        $leasedItems = $user->inventoryItems()->withPivot('lease_until')->get();
+
+        return response()->json($leasedItems);
     }
 }
