@@ -26,6 +26,10 @@ Route::get('/inventory', function () {
     return Inertia::render('Inventory');
 })->middleware(['auth', 'verified'])->name('inventory');
 
+Route::get('/inventory-dashboard', function () {
+    return Inertia::render('InventoryDashboard');
+})->middleware(['auth', 'verified'])->name('inventory-dashboard');
+
 Route::get('/user/{id}/leased-items', function ($id) {
     return Inertia::render('UserLeasedItems', ['userId' => $id]);
 })->middleware(['auth', 'verified'])->name('user.leased-items');

@@ -14,6 +14,12 @@ function Inventory() {
     const [currentItemId, setCurrentItemId] = useState(null);
     const [leaseDetails, setLeaseDetails] = useState({ userId: '', leaseDuration: '' });
 
+    const [stats, setStats] = useState({
+        totalItems: 0,
+        leasedItems: 0,
+        missingItems: 0
+    });
+
     useEffect(() => {
         fetchItems();
         fetchUsers();
@@ -22,6 +28,16 @@ function Inventory() {
     const fetchItems = async () => {
         const response = await axios.get('/api/inventory', { params: { search } });
         setItems(response.data);
+
+        const total = response.data.length;
+        const leased = response.data.filter(item => item.users && item.users.length > 0).length;
+        const missing = response.data.filter(item => item.quantity === 0).length;
+
+        setStats({
+            totalItems: total,
+            leasedItems: leased,
+            missingItems: missing
+        });
     };
 
     const fetchUsers = async () => {
@@ -78,53 +94,114 @@ function Inventory() {
     };
 
     const isItemLeasedByCurrentUser = (item) => {
-        return item.users && item.users.some(user => user.id === auth.user.id);
+        return item.users && Array.isArray(item.users) && item.users.some(user => user.id === auth.user.id);
     };
 
     return (
-        <>
+        <div className="flex h-screen bg-gray-100">
             <Head title="Inventory" />
-            <div className="p-6 text-center bg-gray-100 min-h-screen flex justify-center">
-                <div className="max-w-4xl w-full">
-                    <h1 className="text-4xl font-bold text-orange-600 mb-6">Inventory Management</h1>
-                    <div className="flex justify-center mb-6">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="p-3 border rounded-lg shadow-sm w-1/2"
-                        />
+
+            <aside className="w-64 bg-gray-900 text-white p-5 flex flex-col md:block hidden">
+                <h1 className="text-2xl font-bold mb-6">Inventory</h1>
+                <nav>
+                    <ul>
+                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Dashboard</a></li>
+                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Storage</a></li>
+                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Leased Items</a></li>
+                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Reports</a></li>
+                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Admin Terminal</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <main className="flex-1 p-6 overflow-y-auto">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Inventory Management</h1>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div className="bg-white p-4 rounded-lg shadow-md">
+                        <h2 className="text-lg font-semibold">Total Items</h2>
+                        <p className="text-2xl font-bold">{stats.totalItems}</p>
                     </div>
-                    <div className="flex justify-center mb-6">
-                        <button onClick={() => openModal()} className="p-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition duration-300">Add Item</button>
-                        <a href={`/user/${auth.user.id}/leased-items`} className="p-3 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ml-2">View Leased Items</a>
+                    <div className="bg-white p-4 rounded-lg shadow-md">
+                        <h2 className="text-lg font-semibold">Leased Items</h2>
+                        <p className="text-2xl font-bold text-yellow-500">{stats.leasedItems}</p>
                     </div>
+                    <div className="bg-white p-4 rounded-lg shadow-md">
+                        <h2 className="text-lg font-semibold">Missing Items</h2>
+                        <p className="text-2xl font-bold text-red-500">{stats.missingItems}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center">
+                        <div className="w-full md:w-2/3 mb-4 md:mb-0">
+                            <input
+                                type="text"
+                                placeholder="Search inventory..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="p-3 border rounded-lg shadow-sm w-full"
+                            />
+                        </div>
+                        <div className="flex">
+                            <button
+                                onClick={() => openModal()}
+                                className="p-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 mr-2"
+                            >
+                                Add Item
+                            </button>
+                            <a
+                                href={`/user/${auth.user.id}/leased-items`}
+                                className="p-3 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition duration-300"
+                            >
+                                View Leased Items
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h2 className="text-lg font-semibold mb-4">Inventory Items</h2>
                     <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white shadow-lg rounded-lg">
-                            <thead className="bg-gray-200">
+                        <table className="min-w-full">
+                            <thead className="bg-gray-100">
                             <tr>
-                                <th className="py-3 px-4">Name</th>
-                                <th className="py-3 px-4">Description</th>
-                                <th className="py-3 px-4">Quantity</th>
-                                <th className="py-3 px-4">Category</th>
-                                <th className="py-3 px-4">Estimated Price</th>
-                                <th className="py-3 px-4">Actions</th>
+                                <th className="py-3 px-4 text-left">Name</th>
+                                <th className="py-3 px-4 text-left">Description</th>
+                                <th className="py-3 px-4 text-left">Quantity</th>
+                                <th className="py-3 px-4 text-left">Category</th>
+                                <th className="py-3 px-4 text-left">Est. Price</th>
+                                <th className="py-3 px-4 text-left">Actions</th>
                             </tr>
                             </thead>
                             <tbody>
                             {items.map(item => (
-                                <tr key={item.id} className="border-b hover:bg-gray-100 transition duration-300">
+                                <tr key={item.id} className="border-b hover:bg-gray-50 transition duration-300">
                                     <td className="py-3 px-4">{item.name}</td>
                                     <td className="py-3 px-4">{item.description}</td>
                                     <td className="py-3 px-4">{item.quantity}</td>
                                     <td className="py-3 px-4">{item.category}</td>
                                     <td className="py-3 px-4">{item.estimated_price}</td>
                                     <td className="py-3 px-4">
-                                        <button onClick={() => openModal(item)} className="p-2 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition duration-300 ml-2">Edit</button>
-                                        <button onClick={() => deleteItem(item.id)} className="p-2 bg-red-500 text-white rounded-lg shadow-lg hover:bg-red-600 transition duration-300 ml-2">Delete</button>
+                                        <button
+                                            onClick={() => openModal(item)}
+                                            className="p-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition mr-2"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => deleteItem(item.id)}
+                                            className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition mr-2"
+                                        >
+                                            Delete
+                                        </button>
                                         {!isItemLeasedByCurrentUser(item) && (
-                                            <button onClick={() => openLeaseModal(item)} className="p-2 bg-yellow-500 text-white rounded-lg shadow-lg hover:bg-yellow-600 transition duration-300 ml-2">Lease</button>
+                                            <button
+                                                onClick={() => openLeaseModal(item)}
+                                                className="p-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
+                                            >
+                                                Lease
+                                            </button>
                                         )}
                                     </td>
                                 </tr>
@@ -133,10 +210,11 @@ function Inventory() {
                         </table>
                     </div>
                 </div>
-            </div>
+            </main>
+
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-2xl font-bold mb-4">{isEditing ? 'Edit Item' : 'Add Item'}</h2>
                         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                             <input
@@ -175,16 +253,17 @@ function Inventory() {
                                 className="p-3 border rounded-lg shadow-sm w-full mb-4"
                             />
                             <div className="flex justify-end">
-                                <button type="submit" className="p-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition duration-300">{isEditing ? 'Update' : 'Add'}</button>
-                                <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg shadow-lg hover:bg-gray-600 transition duration-300 ml-2">Close</button>
+                                <button type="submit" className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">{isEditing ? 'Update' : 'Add'}</button>
+                                <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition ml-2">Close</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
             {isLeaseModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-2xl font-bold mb-4">Lease Item</h2>
                         <form onSubmit={(e) => { e.preventDefault(); handleLeaseSubmit(); }}>
                             <select
@@ -204,14 +283,14 @@ function Inventory() {
                                 className="p-3 border rounded-lg shadow-sm w-full mb-4"
                             />
                             <div className="flex justify-end">
-                                <button type="submit" className="p-3 bg-yellow-500 text-white rounded-lg shadow-lg hover:bg-yellow-600 transition duration-300">Lease</button>
-                                <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg shadow-lg hover:bg-gray-600 transition duration-300 ml-2">Close</button>
+                                <button type="submit" className="p-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">Lease</button>
+                                <button onClick={closeModal} className="p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition ml-2">Close</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 
