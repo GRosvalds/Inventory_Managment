@@ -109,7 +109,7 @@ function Inventory() {
                         <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Storage</a></li>
                         <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Leased Items</a></li>
                         <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Reports</a></li>
-                        <li className="mb-4"><a href="#" className="block p-2 hover:bg-gray-700 rounded">Admin Terminal</a></li>
+                        <li className="mb-4"><a href="/inventory-dashboard" className="block p-2 hover:bg-gray-700 rounded">Admin Terminal</a></li>
                     </ul>
                 </nav>
             </aside>

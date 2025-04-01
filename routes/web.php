@@ -22,6 +22,10 @@ Route::get('/home-page', function () {
     return Inertia::render('Home');
 })->middleware(['auth', 'verified'])->name('home-page');
 
+Route::get('/user-inventory', function () {
+    return Inertia::render('UserInventory');
+})->middleware(['auth', 'verified'])->name('user-inventory');
+
 Route::get('/inventory', function () {
     return Inertia::render('Inventory');
 })->middleware(['auth', 'verified'])->name('inventory');
