@@ -14,14 +14,19 @@ function LeaseRequestModal({ isOpen, onClose, item }) {
             endDate.setDate(endDate.getDate() + parseInt(leaseDuration));
             const formattedDate = endDate.toISOString().split('T')[0];
 
-            await axios.post(`/api/inventory/${item.id}/lease`, {
-                userId: 1, // Replace with actual user ID
-                leaseDuration: formattedDate
+            await axios.post(`/lease-requests`, {
+                user_id: 1,
+                inventory_id: item.id,
+                requested_until: formattedDate,
+                purpose: leasePurpose
             });
 
+            alert('Lease request submitted successfully');
             onClose();
         } catch (error) {
             console.error('Error submitting lease request:', error);
+            alert('Failed to submit lease request: ' +
+                (error.response?.data?.error || 'Unknown error'));
         }
     };
 

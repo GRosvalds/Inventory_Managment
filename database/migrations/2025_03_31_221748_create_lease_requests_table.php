@@ -13,7 +13,8 @@ return new class extends Migration
         Schema::create('lease_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('inventory_id')->constrained('inventory_items')->onDelete('cascade');            $table->foreignId('status_id')->constrained('request_statuses');
+            $table->foreignId('inventory_id')->constrained('inventory_items')->onDelete('cascade');
+            $table->foreignId('status_id')->constrained('request_statuses');
             $table->date('requested_until');
             $table->text('purpose')->nullable();
             $table->text('admin_notes')->nullable();

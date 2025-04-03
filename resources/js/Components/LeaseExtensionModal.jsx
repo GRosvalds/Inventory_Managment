@@ -13,14 +13,16 @@ function LeaseExtensionModal({ isOpen, onClose, item }) {
             endDate.setDate(endDate.getDate() + parseInt(extensionDuration));
             const formattedDate = endDate.toISOString().split('T')[0];
 
-            await axios.post(`/api/inventory/${item.id}/lease`, {
-                userId: 1, // Replace with actual user ID
-                leaseDuration: formattedDate
+            await axios.post(`/api/inventory/${item.id}/lease-extension`, {
+                user_id: 1,
+                end_date: formattedDate
             });
 
+            alert('Lease extension request submitted successfully');
             onClose();
         } catch (error) {
             console.error('Error submitting extension request:', error);
+            alert('Failed to submit lease extension request');
         }
     };
 

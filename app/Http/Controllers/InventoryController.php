@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class InventoryController extends Controller
 {
@@ -62,7 +65,7 @@ class InventoryController extends Controller
     public function destroy($id)
     {
         InventoryItem::destroy($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
     public function lease(Request $request, $id)
