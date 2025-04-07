@@ -1,27 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/home-page', function () {
     return Inertia::render('Home');
-})->middleware(['auth', 'verified'])->name('home-page');
+});
 
 Route::get('/user-inventory', function () {
     return Inertia::render('UserInventory');
@@ -38,6 +26,14 @@ Route::get('/inventory-dashboard', function () {
 Route::get('/user/{id}/leased-items', function ($id) {
     return Inertia::render('UserLeasedItems', ['userId' => $id]);
 })->middleware(['auth', 'verified'])->name('user.leased-items');
+
+Route::get('/lease-request-management', function () {
+    return Inertia::render('LeaseRequestManagement');
+})->middleware(['auth', 'verified'])->name('lease-request-management');
+
+Route::get('/edit-profile', function () {
+    return Inertia::render('Profile/Edit');
+})->middleware(['auth', 'verified'])->name('edit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

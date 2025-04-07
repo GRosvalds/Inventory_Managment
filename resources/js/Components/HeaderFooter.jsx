@@ -1,11 +1,14 @@
 import React from 'react';
-import { Search, User, ShoppingCart } from 'lucide-react';
+import { Search, User, ShoppingCart, Archive } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePage } from '@inertiajs/react';
 
 export const Header = () => {
+    const { auth } = usePage().props;
+
     return (
         <motion.header
-            className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white p-6 flex justify-between items-center shadow-lg rounded-b-3xl"
+            className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white p-6 flex justify-between items-center shadow-lg rounded-b-3xl"
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -13,49 +16,28 @@ export const Header = () => {
             <div className="flex items-center space-x-4">
                 <h1 className="text-4xl font-extrabold tracking-widest">Inventory Manager</h1>
             </div>
-            <div className="flex items-center space-x-8">
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search items..."
-                        className="rounded-full p-3 text-gray-700 focus:outline-none shadow-lg transition-transform duration-300 hover:scale-105"
-                    />
-                    <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-                <User className="cursor-pointer hover:scale-125 transition-transform duration-300" />
-            </div>
+            {auth.user && (
+                <motion.a
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    href={`/user/${auth.user.id}/leased-items`}
+                    className="px-4 py-2 bg-blue-800 text-white rounded-lg shadow hover:bg-blue-900 transition duration-300 flex items-center"
+                >
+                    <Archive size={18} className="mr-2" />
+                    My Leases
+                </motion.a>
+            )}
         </motion.header>
-    );
-};
-
-export const Footer = () => {
-    return (
-        <motion.footer
-            className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 flex justify-between items-center shadow-lg rounded-t-3xl mt-10"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-        >
-            <div className="flex items-center space-x-4">
-                <p className="text-sm">&copy; 2025 Inventory Manager. All rights reserved.</p>
-            </div>
-            <div className="flex space-x-6">
-                <a href="#" className="hover:text-gray-300 transition-colors duration-300">Privacy Policy</a>
-                <a href="#" className="hover:text-gray-300 transition-colors duration-300">Terms of Service</a>
-                <a href="#" className="hover:text-gray-300 transition-colors duration-300">Contact Us</a>
-            </div>
-        </motion.footer>
     );
 };
 
 export const Layout = ({ children }) => {
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
+        <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow p-6">{children}</main>
-            <Footer />
         </div>
     );
 };
 
-export default { Header, Footer, Layout };
+export default { Header, Layout };
