@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, AlertTriangle, Filter, Clock, Calendar, User, Package, FileText } from 'lucide-react';
 import SidebarLayout from "@/Components/SidebarLayout";
 
-// Toast Component
 const Toast = ({ message, type, onClose }) => {
     return (
         <motion.div
@@ -290,7 +289,6 @@ function LeaseRequestManagement() {
                 </motion.div>
             </div>
 
-            {/* Details Modal */}
             <AnimatePresence>
                 {isDetailsModalOpen && selectedRequest && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -341,6 +339,7 @@ function LeaseRequestManagement() {
                                     </h4>
                                     <div className="mt-2 space-y-2">
                                         <p><span className="font-medium text-gray-500">Status:</span> {getStatusBadge(selectedRequest.status_id)}</p>
+                                        <p><span className="font-medium text-gray-500">Quantity:</span> {selectedRequest.quantity}</p>
                                         <p><span className="font-medium text-gray-500">Requested On:</span> {new Date(selectedRequest.created_at).toLocaleString()}</p>
                                         <p><span className="font-medium text-gray-500">Requested Until:</span> {new Date(selectedRequest.requested_until).toLocaleDateString()}</p>
                                         {selectedRequest.approved_at && (

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Filter, Check } from 'lucide-react';
+import { X, Filter, Check, AlertTriangle } from 'lucide-react';
 
 const Toast = ({ message, type, onClose }) => {
     return (
@@ -12,9 +12,9 @@ const Toast = ({ message, type, onClose }) => {
                 type === 'success' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
             }`}
         >
-      <span className="mr-2">
-        {type === 'success' ? <Check size={18} /> : <X size={18} />}
-      </span>
+            <span className="mr-2">
+                {type === 'success' ? <Check size={18} /> : <X size={18} />}
+            </span>
             <span>{message}</span>
             <button onClick={onClose} className="ml-3 hover:text-gray-200">
                 <X size={16} />
@@ -28,7 +28,16 @@ function BasketModal({ isOpen, onClose, basketItems, removeFromBasket, onRequest
     const [leasePurpose, setLeasePurpose] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [toast, setToast] = useState(null);
+    const [itemQuantities, setItemQuantities] = useState({}); // Track quantities for each item
     const itemsPerPage = 3;
+
+    useEffect(() => {
+        const quantities = {};
+        basketItems.forEach(item => {
+            quantities[item.id] = quantities[item.id] || 1;
+        });
+        setItemQuantities(quantities);
+    }, [basketItems]);
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -44,9 +53,31 @@ function BasketModal({ isOpen, onClose, basketItems, removeFromBasket, onRequest
         setCurrentPage(pageNumber);
     };
 
+    const handleQuantityChange = (itemId, quantity) => {
+        setItemQuantities(prev => ({
+            ...prev,
+            [itemId]: quantity
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onRequestLease(basketItems, { duration: leaseDuration, purpose: leasePurpose });
+
+        const validQuantities = basketItems.every(item =>
+            itemQuantities[item.id] > 0 && itemQuantities[item.id] <= item.quantity
+        );
+
+        if (!validQuantities) {
+            showToast('Please check item quantities', 'error');
+            return;
+        }
+
+        onRequestLease(basketItems, {
+            duration: leaseDuration,
+            purpose: leasePurpose,
+            quantity: itemQuantities
+        });
+
         showToast('Lease requests submitted successfully');
     };
 
@@ -174,6 +205,28 @@ function BasketModal({ isOpen, onClose, basketItems, removeFromBasket, onRequest
                                                 <div className="mt-1 flex items-center text-sm">
                                                     <span className="text-orange-500 font-medium">Available: {item.quantity}</span>
                                                 </div>
+
+                                                <div className="mt-2 flex items-center">
+                                                    <label className="text-sm text-gray-600 mr-2">Quantity:</label>
+                                                    <div className="relative w-24">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            max={item.quantity}
+                                                            value={itemQuantities[item.id] || 1}
+                                                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                                                            className="w-full p-1 border border-gray-300 rounded text-sm focus:ring-blue-800 focus:border-blue-800"
+                                                        />
+                                                        {(itemQuantities[item.id] || 1) > item.quantity && (
+                                                            <div className="absolute right-0 top-0 h-full flex items-center pr-1">
+                                                                <AlertTriangle size={12} className="text-red-500" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {(itemQuantities[item.id] || 1) > item.quantity && (
+                                                        <span className="ml-2 text-red-500 text-xs">Exceeds available quantity</span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <motion.button
                                                 whileHover={{ scale: 1.1 }}
@@ -193,7 +246,6 @@ function BasketModal({ isOpen, onClose, basketItems, removeFromBasket, onRequest
                                 </div>
                             )}
 
-                            {/* Pagination */}
                             {basketItems.length > itemsPerPage && (
                                 <div className="flex justify-center mt-6 space-x-2">
                                     <button

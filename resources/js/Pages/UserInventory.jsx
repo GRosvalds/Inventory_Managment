@@ -9,8 +9,10 @@ import { Layout } from "@/Components/HeaderFooter.jsx";
 import SearchFilters from '@/Components/SearchFilters';
 import { AnimatePresence } from 'framer-motion';
 import { Toast } from '@/Components/LeaseRequestModal';
+import {usePage} from "@inertiajs/react";
 
 function UserInventory() {
+    const { auth } = usePage().props;
     const [items, setItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([]);
     const [basketItems, setBasketItems] = useState([]);
@@ -70,8 +72,9 @@ function UserInventory() {
 
                 await Promise.all(items.map(item =>
                     axios.post(`/lease-requests`, {
-                        user_id: 1,
+                        user_id: auth.user.id,
                         inventory_id: item.id,
+                        quantity: leaseDetails.quantity[item.id] || 1,
                         requested_until: formattedDate,
                         purpose: leaseDetails.purpose
                     })

@@ -1,9 +1,12 @@
+// resources/js/Components/LeaseRequestModal.jsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { X, Check } from 'lucide-react';
+import { X, Check, AlertTriangle } from 'lucide-react';
+import { usePage } from "@inertiajs/react";
 
 export const Toast = ({ message, type, onClose }) => {
+    // Toast component remains unchanged
     return (
         <motion.div
             initial={{ opacity: 0, y: -50, x: '-50%' }}
@@ -13,9 +16,9 @@ export const Toast = ({ message, type, onClose }) => {
                 type === 'success' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
             }`}
         >
-      <span className="mr-2">
-        {type === 'success' ? <Check size={18} /> : <X size={18} />}
-      </span>
+            <span className="mr-2">
+                {type === 'success' ? <Check size={18} /> : <X size={18} />}
+            </span>
             <span>{message}</span>
             <button onClick={onClose} className="ml-3 hover:text-gray-200">
                 <X size={16} />
@@ -25,8 +28,10 @@ export const Toast = ({ message, type, onClose }) => {
 };
 
 function LeaseRequestModal({ isOpen, onClose, item }) {
+    const { auth } = usePage().props;
     const [leaseDuration, setLeaseDuration] = useState(7);
     const [leasePurpose, setLeasePurpose] = useState('');
+    const [quantity, setQuantity] = useState(1); // Add quantity state
     const [toast, setToast] = useState(null);
 
     const showToast = (message, type = 'success') => {
@@ -37,14 +42,21 @@ function LeaseRequestModal({ isOpen, onClose, item }) {
     const handleLeaseRequest = async (e) => {
         e.preventDefault();
 
+        // Validate quantity
+        if (quantity > item.quantity) {
+            showToast(`Cannot request more than available quantity (${item.quantity})`, 'error');
+            return;
+        }
+
         try {
             const endDate = new Date();
             endDate.setDate(endDate.getDate() + parseInt(leaseDuration));
             const formattedDate = endDate.toISOString().split('T')[0];
 
             await axios.post(`/lease-requests`, {
-                user_id: 1,
+                user_id: auth.user.id,
                 inventory_id: item.id,
+                quantity: quantity,
                 requested_until: formattedDate,
                 purpose: leasePurpose
             });
@@ -104,6 +116,31 @@ function LeaseRequestModal({ isOpen, onClose, item }) {
 
                         <form onSubmit={handleLeaseRequest}>
                             <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <div className="flex items-center">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max={item?.quantity}
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                                        className="p-3 border rounded-lg shadow-sm w-full focus:ring-blue-800 focus:border-blue-800"
+                                        required
+                                    />
+                                    {quantity > item?.quantity && (
+                                        <div className="ml-2 text-red-500 flex items-center">
+                                            <AlertTriangle size={16} className="mr-1" />
+                                        </div>
+                                    )}
+                                </div>
+                                {quantity > item?.quantity && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        Cannot exceed available quantity
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Lease Duration (days)</label>
                                 <input
                                     type="number"
@@ -133,6 +170,7 @@ function LeaseRequestModal({ isOpen, onClose, item }) {
                                 whileTap={{ scale: 0.98 }}
                                 type="submit"
                                 className="w-full p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition mt-4 shadow-md"
+                                disabled={quantity > item?.quantity}
                             >
                                 Submit Request
                             </motion.button>
