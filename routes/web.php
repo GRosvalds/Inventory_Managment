@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +36,10 @@ Route::get('/edit-profile', function () {
     return Inertia::render('Profile/Edit');
 })->middleware(['auth', 'verified'])->name('edit');
 
+Route::get('/user-management', function () {
+    return Inertia::render('UserManagement');
+})->middleware(['auth', 'verified'])->name('user-management');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -49,6 +54,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/lease-requests/{leaseRequest}/approve', [LeaseRequestController::class, 'approve'])->name('lease-requests.approve');
     Route::post('/lease-requests/{leaseRequest}/reject', [LeaseRequestController::class, 'reject'])->name('lease-requests.reject');
     Route::get('/my-lease-requests', [LeaseRequestController::class, 'myRequests'])->name('lease-requests.my');
+
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{user}', [UserController::class, 'show']);
+    Route::put('/users/{user}', [UserController::class, 'update']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
 });
 
 require __DIR__.'/auth.php';
