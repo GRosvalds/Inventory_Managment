@@ -11,7 +11,7 @@ import {
     LogOut,
     ChevronRight,
     Menu,
-    X
+    X, Users
 } from 'lucide-react';
 
 const Sidebar = ({ user }) => {
@@ -24,7 +24,8 @@ const Sidebar = ({ user }) => {
         { name: 'User Inventory', icon: Package, route: 'user-inventory' },
         { name: 'Lease Requests', icon: Clipboard, route: 'lease-request-management' },
         { name: 'Profile', icon: User, route: 'profile.edit' },
-        { name: 'Settings', icon: Settings, href: '#' },
+        { name: 'Users', icon: Users, href: 'user-management' },
+
     ];
 
     const sidebarVariants = {

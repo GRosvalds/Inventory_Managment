@@ -17,6 +17,7 @@ class LeaseRequest extends Model
     const USER_ID = 'user_id';
     const INVENTORY_ID = 'inventory_id';
     const STATUS_ID = 'status_id';
+    const QUANTITY = 'quantity';
     const NOTES = 'notes';
     const REQUESTED_UNTIL = 'requested_until';
     const PURPOSE = 'purpose';
@@ -35,6 +36,7 @@ class LeaseRequest extends Model
     protected $fillable = [
         self::USER_ID,
         self::INVENTORY_ID,
+        self::QUANTITY,
         self::REQUESTED_UNTIL,
         self::PURPOSE,
         self::ADMIN_NOTES,

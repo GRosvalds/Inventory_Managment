@@ -33,6 +33,7 @@ class LeaseRequestController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'inventory_id' => 'required|exists:inventory_items,id',
+            'quantity' => 'required|integer|min:1',
             'requested_until' => 'required|date|after_or_equal:today',
             'purpose' => 'nullable|string|max:500',
         ]);
@@ -47,6 +48,7 @@ class LeaseRequestController extends Controller
         $leaseRequest = new LeaseRequest();
         $leaseRequest->user_id = $validated['user_id'];
         $leaseRequest->inventory_id = $validated['inventory_id'];
+        $leaseRequest->quantity = $validated['quantity'];
         $leaseRequest->requested_until = $validated['requested_until'];
         $leaseRequest->purpose = $validated['purpose'] ?? null;
         $leaseRequest->status_id = LeaseRequest::PENDING;
@@ -79,7 +81,7 @@ class LeaseRequestController extends Controller
         $leaseRequest->approved_by = Auth::id();
         $leaseRequest->save();
 
-        $item->quantity -= 1;
+        $item->quantity -= $leaseRequest->quantity;
         $item->save();
 
         return response()->json(['success' => 'Lease request approved successfully']);

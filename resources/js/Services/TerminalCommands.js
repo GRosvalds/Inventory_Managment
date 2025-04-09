@@ -143,11 +143,16 @@ export default function createCommandHandlers(items, users, stats, fetchItems, f
                 const email = args[3];
                 const password = args[4];
 
+                const role = args.length > 5 ? args[5] : 'user';
+                const department = args.length > 6 ? args[6] : null;
+
                 try {
-                    const response = await axios.post('/api/users', {
+                    const response = await axios.post('/users', {
                         name,
                         email,
                         password,
+                        role,
+                        department
                     });
 
                     addOutput(`User ${name} (${email}) created successfully with ID: ${response.data.id}`);
@@ -156,6 +161,7 @@ export default function createCommandHandlers(items, users, stats, fetchItems, f
                     addOutput(`Failed to create user: ${error.response?.data?.message || error.message}`);
                 }
             }
+
             else if (target === "item") {
                 if (args.length < 6) {
                     addOutput("Error: add item requires name, quantity, price, and category");
