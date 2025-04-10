@@ -103,7 +103,7 @@ function Home() {
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">Follow these simple steps to get started</p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         {steps.map((step, index) => (
                             <StepCard key={index} step={step} index={index} />
                         ))}
@@ -179,7 +179,7 @@ const StepCard = ({ step, index }) => {
                 <h3 className="text-xl font-bold text-gray-800 mb-3">{step.title}</h3>
                 <p className="text-gray-600">{step.description}</p>
             </div>
-            {index < 3 && (
+            {index < 2 && (
                 <div className="hidden md:block absolute top-1/2 -right-5 w-10 h-2 bg-blue-200 z-0"></div>
             )}
         </motion.div>
