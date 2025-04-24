@@ -14,6 +14,7 @@ class ItemLease extends Model
     protected $fillable = [
         'user_id',
         'inventory_item_id',
+        'quantity',
         'lease_until',
         'notes'
     ];

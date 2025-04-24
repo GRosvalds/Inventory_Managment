@@ -32,6 +32,7 @@ class ItemLeaseController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'inventory_item_id' => 'required|exists:inventory_items,id',
+            'quantity' => 'required|integer|min:1|max:' . $item->quantity,
             'lease_until' => 'required|date|after:today',
         ]);
 
@@ -41,7 +42,7 @@ class ItemLeaseController extends Controller
 
         $lease = ItemLease::create($request->all());
 
-        $item->quantity -= 1;
+        $item->quantity -= $item->quantity;
         $item->save();
 
         return response()->json($lease, 201);
@@ -50,10 +51,13 @@ class ItemLeaseController extends Controller
     public function update(Request $request, $id)
     {
         $lease = ItemLease::findOrFail($id);
+        $item = InventoryItem::findOrFail($request->inventory_item_id);
 
         $validator = Validator::make($request->all(), [
-            'lease_until' => 'sometimes|required|date',
-            'notes' => 'nullable|string|max:500'
+            'user_id' => 'required|exists:users,id',
+            'inventory_item_id' => 'required|exists:inventory_items,id',
+            'quantity' => 'required|integer|min:1|'. $item->quantity,
+            'lease_until' => 'required|date|after:today',
         ]);
 
         if ($validator->fails()) {

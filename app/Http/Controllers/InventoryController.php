@@ -68,19 +68,6 @@ class InventoryController extends Controller
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function lease(Request $request, $id)
-    {
-        $validatedData = $request->validate([
-            'userId' => 'required|exists:users,id',
-            'leaseDuration' => 'required|date',
-        ]);
-
-        $item = InventoryItem::findOrFail($id);
-        $item->users()->attach($validatedData['userId'], ['lease_until' => $validatedData['leaseDuration']]);
-
-        return response()->json($item);
-    }
-
     public function getUserLeasedItems($id)
     {
         $user = User::findOrFail($id);

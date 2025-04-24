@@ -86,6 +86,7 @@ class LeaseRequestController extends Controller
             'user_id' => $leaseRequest->user_id,
             'inventory_item_id' => $leaseRequest->inventory_id,
             'lease_until' => $leaseRequest->requested_until,
+            'quantity' => $leaseRequest->quantity,
         ]);
 
         $item->quantity -= $leaseRequest->quantity;

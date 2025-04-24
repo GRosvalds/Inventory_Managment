@@ -36,7 +36,7 @@ function Inventory() {
     const [isLeaseModalOpen, setIsLeaseModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentItemId, setCurrentItemId] = useState(null);
-    const [leaseDetails, setLeaseDetails] = useState({ userId: '', leaseDuration: '' });
+    const [leaseDetails, setLeaseDetails] = useState({ userId: '', leaseDuration: '', quantity: 1 });
     const [toast, setToast] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [categoryFilter, setCategoryFilter] = useState('');
@@ -119,6 +119,7 @@ function Inventory() {
 
     const openLeaseModal = (item) => {
         setCurrentItemId(item.id);
+        setLeaseDetails({ userId: '', leaseDuration: '', quantity: 1 });
         setIsLeaseModalOpen(true);
     };
 
@@ -144,12 +145,21 @@ function Inventory() {
         }
     };
 
+    const handleQuantityChange = (e) => {
+        const value = parseInt(e.target.value) || 1;
+        const currentItem = items.find(item => item.id === currentItemId);
+        const maxAvailable = currentItem ? currentItem.quantity : 1;
+        const safeValue = Math.min(Math.max(1, value), maxAvailable);
+        setLeaseDetails({ ...leaseDetails, quantity: safeValue });
+    };
+
     const handleLeaseSubmit = async () => {
         try {
             const leaseData = {
                 user_id: leaseDetails.userId,
                 inventory_item_id: currentItemId,
-                lease_until: leaseDetails.leaseDuration
+                lease_until: leaseDetails.leaseDuration,
+                quantity: leaseDetails.quantity,
             };
 
             await axios.post('/leases', leaseData);
@@ -538,6 +548,22 @@ function Inventory() {
                                                     <option key={user.id} value={user.id}>{user.name}</option>
                                                 ))}
                                             </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                            <input
+                                                type="number"
+                                                value={leaseDetails.quantity || 1}
+                                                onChange={handleQuantityChange}
+                                                className="p-3 border border-gray-300 rounded-lg shadow-sm w-full focus:ring-blue-800 focus:border-blue-800"
+                                                min="1"
+                                                max={items.find(item => item.id === currentItemId)?.quantity || 1}
+                                                required
+                                            />
+                                            <div className="mt-1 text-xs text-gray-500">
+                                                Available: {items.find(item => item.id === currentItemId)?.quantity || 0}
+                                            </div>
                                         </div>
 
                                         <div>
