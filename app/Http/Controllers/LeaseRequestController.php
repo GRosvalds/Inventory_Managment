@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
+use App\Models\ItemLease;
 use App\Models\LeaseRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +81,12 @@ class LeaseRequestController extends Controller
         $leaseRequest->approved_at = now();
         $leaseRequest->approved_by = Auth::id();
         $leaseRequest->save();
+
+        ItemLease::create([
+            'user_id' => $leaseRequest->user_id,
+            'inventory_item_id' => $leaseRequest->inventory_id,
+            'lease_until' => $leaseRequest->requested_until,
+        ]);
 
         $item->quantity -= $leaseRequest->quantity;
         $item->save();

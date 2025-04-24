@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Plus, Edit, Trash2, Archive, Search, Grid } from 'lucide-react';
 import SidebarLayout from "@/Components/SidebarLayout";
 
-// Toast Component
 const Toast = ({ message, type, onClose }) => {
     return (
         <motion.div
@@ -62,14 +61,25 @@ function Inventory() {
     const fetchItems = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/inventory', {
+            const inventoryResponse = await axios.get('api/inventory', {
                 params: { search, category: categoryFilter, availability: availabilityFilter }
             });
-            setItems(response.data);
 
-            const total = response.data.length;
-            const leased = response.data.filter(item => item.users && item.users.length > 0).length;
-            const missing = response.data.filter(item => item.quantity === 0).length;
+            const leaseResponse = await axios.get('/leases');
+            const allLeases = leaseResponse.data;
+            const leaseCount = allLeases.length;
+
+            const itemsWithLeases = inventoryResponse.data.map(item => {
+                return {
+                    ...item,
+                };
+            });
+
+            setItems(itemsWithLeases);
+
+            const total = itemsWithLeases.length;
+            const leased = leaseCount;
+            const missing = itemsWithLeases.filter(item => item.quantity === 0).length;
 
             setStats({
                 totalItems: total,
@@ -136,7 +146,13 @@ function Inventory() {
 
     const handleLeaseSubmit = async () => {
         try {
-            await axios.post(`/api/inventory/${currentItemId}/lease`, leaseDetails);
+            const leaseData = {
+                user_id: leaseDetails.userId,
+                inventory_item_id: currentItemId,
+                lease_until: leaseDetails.leaseDuration
+            };
+
+            await axios.post('/leases', leaseData);
             showToast('Item leased successfully');
             fetchItems();
             closeModal();

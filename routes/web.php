@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ItemLeaseController;
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -60,6 +61,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::put('/users/{user}', [UserController::class, 'update']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+    Route::get('/leases', [ItemLeaseController::class, 'index']);
+    Route::get('/leases/{id}', [ItemLeaseController::class, 'show']);
+    Route::post('/leases', [ItemLeaseController::class, 'store']);
+    Route::put('/leases/{id}', [ItemLeaseController::class, 'update']);
+    Route::delete('/leases/{id}', [ItemLeaseController::class, 'destroy']);
+    Route::get('/users/{userId}/leases', [ItemLeaseController::class, 'userLeases']);
+    Route::get('/items/{itemId}/leases', [ItemLeaseController::class, 'itemLeases']);
 });
 
 require __DIR__.'/auth.php';
