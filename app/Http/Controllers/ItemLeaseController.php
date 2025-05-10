@@ -56,7 +56,7 @@ class ItemLeaseController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'inventory_item_id' => 'required|exists:inventory_items,id',
-            'quantity' => 'required|integer|min:1|'. $item->quantity,
+            'quantity' => 'required|integer|min:1|' . $item->quantity,
             'lease_until' => 'required|date|after:today',
         ]);
 
@@ -93,5 +93,18 @@ class ItemLeaseController extends Controller
             ->get();
 
         return response()->json($leases);
+    }
+
+    public function returnLeasedItem(int $id)
+    {
+        $lease = ItemLease::findOrFail($id);
+        $item = InventoryItem::findOrFail($lease->inventory_item_id);
+
+        $item->quantity += $lease->quantity;
+        $item->save();
+
+        $lease->delete();
+
+        return response()->json(null, 204);
     }
 }

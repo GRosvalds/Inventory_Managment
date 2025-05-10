@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
+use App\Models\ItemLease;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -71,7 +72,7 @@ class InventoryController extends Controller
     public function getUserLeasedItems($id)
     {
         $user = User::findOrFail($id);
-        $leasedItems = $user->inventoryItems()->withPivot('lease_until')->get();
+        $leasedItems = ItemLease::where('user_id', $user->id)->with('item')->get();
 
         return response()->json($leasedItems);
     }

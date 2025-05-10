@@ -66,9 +66,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/leases/{id}', [ItemLeaseController::class, 'show']);
     Route::post('/leases', [ItemLeaseController::class, 'store']);
     Route::put('/leases/{id}', [ItemLeaseController::class, 'update']);
-    Route::delete('/leases/{id}', [ItemLeaseController::class, 'destroy']);
     Route::get('/users/{userId}/leases', [ItemLeaseController::class, 'userLeases']);
     Route::get('/items/{itemId}/leases', [ItemLeaseController::class, 'itemLeases']);
+    Route::delete('/leases/{id}', [ItemLeaseController::class, 'returnLeasedItem']);
 });
 
 require __DIR__.'/auth.php';
