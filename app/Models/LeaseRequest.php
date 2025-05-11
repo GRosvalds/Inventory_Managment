@@ -25,7 +25,6 @@ class LeaseRequest extends Model
     const APPROVED_AT = 'approved_at';
     const APPROVED_BY = 'approved_by';
 
-    // Change string values to integers to match database values
     const PENDING = 1;
     const APPROVED = 2;
     const REJECTED = 3;

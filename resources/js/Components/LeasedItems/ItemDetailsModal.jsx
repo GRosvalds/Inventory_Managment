@@ -11,7 +11,7 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
         console.log('Extension requested:', {
             leaseId: item.id,
             additionalDays: extendDays,
-            reason: extendReason
+            reason: extendReason,
         });
     };
 
@@ -24,7 +24,7 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                 className="bg-white rounded-lg shadow-xl overflow-hidden w-full max-w-3xl"
             >
                 <div className="p-5 bg-blue-800 border-b flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-white">{item.name}</h3>
+                    <h3 className="text-xl font-bold text-white">{item.item.name}</h3>
                     <button onClick={onClose} className="text-white hover:text-gray-200">
                         <X size={20} />
                     </button>
@@ -59,14 +59,14 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                             <div className="space-y-4">
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500 mb-1">Description</h4>
-                                    <p className="text-gray-900">{item.description}</p>
+                                    <p className="text-gray-900">{item.item.description}</p>
                                 </div>
 
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500 mb-1">Category</h4>
                                     <div className="flex items-center">
                                         <Tag size={16} className="mr-1 text-gray-500" />
-                                        <span className="text-gray-900">{item.category}</span>
+                                        <span className="text-gray-900">{item.item.category}</span>
                                     </div>
                                 </div>
 
@@ -74,7 +74,7 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                                     <h4 className="text-sm font-medium text-gray-500 mb-1">Estimated Value</h4>
                                     <div className="flex items-center">
                                         <DollarSign size={16} className="mr-1 text-gray-500" />
-                                        <span className="text-gray-900">${parseFloat(item.estimated_price).toFixed(2)}</span>
+                                        <span className="text-gray-900">${parseFloat(item.item.estimated_price).toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -84,11 +84,11 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                                 <ul className="space-y-2">
                                     <li className="flex justify-between">
                                         <span className="text-gray-500">Item ID:</span>
-                                        <span className="font-medium">{item.inventory_item_id}</span>
+                                        <span className="font-medium">{item.item.id}</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span className="text-gray-500">Quantity Leased:</span>
-                                        <span className="font-medium">{item.quantity || 1}</span>
+                                        <span className="font-medium">{item.item.quantity || 1}</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span className="text-gray-500">Current Status:</span>
@@ -117,8 +117,8 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                                             new Date(item.lease_until) < new Date()
                                                 ? 'text-red-600 font-medium'
                                                 : 'text-gray-900'}`}>
-                                            {formatDate(item.lease_until)}
-                                        </span>
+                            {formatDate(item.lease_until)}
+                        </span>
                                     </div>
                                 </div>
 
@@ -127,12 +127,12 @@ export default function ItemDetailsModal({ item, onClose, formatDate }) {
                                     <div className="flex items-center">
                                         <Clock size={16} className="mr-1 text-gray-500" />
                                         <span className={`${
-                                            new Date(item.pivot.lease_until) < new Date()
+                                            new Date(item.lease_until) < new Date()
                                                 ? 'text-red-600'
                                                 : 'text-green-600'
                                         }`}>
-                                            {new Date(item.pivot.lease_until) < new Date() ? 'Overdue' : 'Active'}
-                                        </span>
+                            {new Date(item.lease_until) < new Date() ? 'Overdue' : 'Active'}
+                        </span>
                                     </div>
                                 </div>
                             </div>

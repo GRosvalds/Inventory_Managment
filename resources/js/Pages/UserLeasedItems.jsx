@@ -33,7 +33,6 @@ function UserLeasedItems({ userId }) {
         setIsLoading(true);
         try {
             const response = await axios.get(`/api/user/${userId}/leased-items`);
-            console.log(response.data);
             setLeasedItems(response.data);
             setFilteredItems(response.data);
         } catch (error) {
