@@ -41,6 +41,10 @@ Route::get('/user-management', function () {
     return Inertia::render('UserManagement');
 })->middleware(['auth', 'verified'])->name('user-management');
 
+Route::get('/admin/leases', function () {
+    return Inertia::render('Leases/AllLeases');
+})->middleware(['auth']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

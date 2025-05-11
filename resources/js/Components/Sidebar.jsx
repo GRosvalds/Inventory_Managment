@@ -11,7 +11,7 @@ import {
     LogOut,
     ChevronRight,
     Menu,
-    X, Users
+    X, Users, FileText
 } from 'lucide-react';
 
 const Sidebar = ({ user }) => {
@@ -23,6 +23,7 @@ const Sidebar = ({ user }) => {
         { name: 'Inventory', icon: Package, route: 'inventory' },
         { name: 'User Inventory', icon: Package, route: 'user-inventory' },
         { name: 'Lease Requests', icon: Clipboard, route: 'lease-request-management' },
+        { name: 'All Leases', icon: FileText, href: 'admin/leases' },
         { name: 'Profile', icon: User, route: 'profile.edit' },
         { name: 'Users', icon: Users, href: 'user-management' },
 
