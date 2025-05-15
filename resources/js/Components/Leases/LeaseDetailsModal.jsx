@@ -11,7 +11,7 @@ import {
     User,
     Mail,
     Package,
-    Hash, AlertTriangle
+    Hash, AlertTriangle, CheckCircle
 } from 'lucide-react';
 
 export default function LeaseDetailsModal({ lease, onClose, formatDate }) {

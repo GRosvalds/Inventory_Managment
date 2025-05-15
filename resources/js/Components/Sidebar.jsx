@@ -26,7 +26,6 @@ const Sidebar = ({ user }) => {
         { name: 'All Leases', icon: FileText, href: 'admin/leases' },
         { name: 'Profile', icon: User, route: 'profile.edit' },
         { name: 'Users', icon: Users, href: 'user-management' },
-
     ];
 
     const sidebarVariants = {
