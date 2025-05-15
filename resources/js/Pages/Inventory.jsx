@@ -31,7 +31,7 @@ function Inventory() {
     const [items, setItems] = useState([]);
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
-    const [newItem, setNewItem] = useState({ name: '', description: '', quantity: 0, category: '', estimated_price: 0 });
+    const [newItem, setNewItem] = useState({ name: '', description: '', initial_quantity: 0, quantity: 0, category: '', estimated_price: 0 });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLeaseModalOpen, setIsLeaseModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -110,7 +110,7 @@ function Inventory() {
             setIsEditing(true);
             setCurrentItemId(item.id);
         } else {
-            setNewItem({ name: '', description: '', quantity: 0, category: '', estimated_price: 0 });
+            setNewItem({ name: '', description: '', initial_quantity: 0, quantity: 0, category: '', estimated_price: 0 });
             setIsEditing(false);
             setCurrentItemId(null);
         }
@@ -452,7 +452,7 @@ function Inventory() {
                                                     type="number"
                                                     placeholder="Quantity"
                                                     value={newItem.quantity}
-                                                    onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 0 })}
+                                                    onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 0, initial_quantity: parseInt(e.target.value) || 0})}
                                                     className="p-3 border border-gray-300 rounded-lg shadow-sm w-full focus:ring-blue-800 focus:border-blue-800"
                                                     min="0"
                                                     required

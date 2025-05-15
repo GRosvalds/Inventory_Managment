@@ -39,6 +39,7 @@ class InventoryController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'initial_quantity' => 'required|integer',
             'quantity' => 'required|integer',
             'category' => 'nullable|string|max:255',
             'estimated_price' => 'nullable|numeric',
