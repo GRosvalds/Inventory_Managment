@@ -34,19 +34,19 @@ class InventoryController extends Controller
         return response()->json($query->get());
     }
 
-    public function store(Request $request)
+    public function createItem(Request $request): Response
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'initial_quantity' => 'required|integer',
-            'quantity' => 'required|integer',
-            'category' => 'nullable|string|max:255',
-            'estimated_price' => 'nullable|numeric',
+            InventoryItem::NAME => 'required|string|max:255',
+            InventoryItem::DESCRIPTION => 'nullable|string',
+            InventoryItem::INITIAL_QUANTITY => 'required|integer',
+            InventoryItem::QUANTITY => 'required|integer',
+            InventoryItem::CATEGORY => 'nullable|string|max:255',
+            InventoryItem::ESTIMATED_PRICE => 'nullable|numeric',
         ]);
 
         $item = InventoryItem::create($validatedData);
-        return response()->json($item, 201);
+        return response()->json($item, Response::HTTP_CREATED);
     }
 
     public function update(Request $request, $id)
@@ -67,7 +67,7 @@ class InventoryController extends Controller
     public function destroy($id)
     {
         InventoryItem::destroy($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
     public function getUserLeasedItems($id)

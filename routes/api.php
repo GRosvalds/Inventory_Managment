@@ -11,7 +11,7 @@ Route::get('/users', function () {
 });
 
 Route::get('/inventory', [InventoryController::class, 'index']);
-Route::post('/inventory', [InventoryController::class, 'store']);
+Route::post('/inventory', [InventoryController::class, 'createItem']);
 Route::put('/inventory/{id}', [InventoryController::class, 'update']);
 Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
 Route::get('/user/{id}/leased-items', [InventoryController::class, 'getUserLeasedItems']);

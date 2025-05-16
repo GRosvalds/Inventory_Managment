@@ -42,7 +42,7 @@ function Inventory() {
         fetchUsers();
     }, [search, categoryFilter, availabilityFilter]);
 
-    const fetchItems = async () => {
+    const fetchItems = async () => { // Tiek veikta priekšmetu datu iegūšana
         setIsLoading(true);
         try {
             const inventoryResponse = await axios.get('api/inventory', {
@@ -78,6 +78,7 @@ function Inventory() {
         }
     };
 
+    // Tiek veikta lietotāju datu iegūšana
     const fetchUsers = async () => {
         try {
             const response = await axios.get('/api/users');
@@ -112,6 +113,7 @@ function Inventory() {
         setIsLeaseModalOpen(false);
     };
 
+    // Tiek veikta jaunā priekšmeta pievienošana vai esošā rediģēšana
     const handleSubmit = async () => {
         try {
             if (isEditing) {
