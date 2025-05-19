@@ -158,6 +158,7 @@ function Inventory() {
         }
     };
 
+    //Dzēst priekšmetu
     const deleteItem = async (id) => {
         try {
             await axios.delete(`/api/inventory/${id}`);

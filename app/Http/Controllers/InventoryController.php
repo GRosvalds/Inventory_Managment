@@ -36,6 +36,7 @@ class InventoryController extends Controller
 
     public function createItem(Request $request): Response
     {
+        // Tiek pievienota validācija
         $validatedData = $request->validate([
             InventoryItem::NAME => 'required|string|max:255',
             InventoryItem::DESCRIPTION => 'nullable|string',
@@ -45,6 +46,7 @@ class InventoryController extends Controller
             InventoryItem::ESTIMATED_PRICE => 'nullable|numeric',
         ]);
 
+        // Tiek izveidots inventory item
         $item = InventoryItem::create($validatedData);
         return response()->json($item, Response::HTTP_CREATED);
     }
