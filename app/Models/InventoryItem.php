@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryItem extends Model
 {
@@ -31,4 +32,10 @@ class InventoryItem extends Model
     {
         return $this->belongsToMany(User::class, self::ITEM_USER)->withPivot(self::LEASED_UNTIL)->withTimestamps();
     }
+
+    public function leases(): HasMany
+    {
+        return $this->hasMany(ItemLease::class, 'inventory_item_id');
+    }
+
 }
