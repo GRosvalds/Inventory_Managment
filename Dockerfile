@@ -1,25 +1,40 @@
-FROM ubuntu:latest
-LABEL maintainer="gabrielsrosvalds"
-
-RUN apt-get update && apt-get install -y \
-    php-cli php-mbstring php-xml php-bcmath php-curl php-mysql php-zip php-tokenizer \
-    php-common php-json php-pdo php-gd unzip curl git nginx supervisor mysql-client \
-    && apt-get clean
+FROM php:8.2-fpm
 
 WORKDIR /var/www/html
 
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    supervisor \
+    nginx
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY composer.* ./
+
+RUN chown -R www-data:www-data /var/www/html
+
 COPY . .
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-scripts --no-autoloader
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer dump-autoload --optimize
 
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 storage bootstrap/cache
 
-COPY ./docker/nginx/default /etc/nginx/sites-available/default
+RUN php artisan storage:link
 
 EXPOSE 8000
 
-COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-CMD ["/usr/bin/supervisord"]
+CMD php artisan serve --host=0.0.0.0 --port=8000
