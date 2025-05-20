@@ -1,9 +1,9 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci && npm run build && npm run dev"
+buildCommand = "npm ci && npm run build"
 
 [deploy]
-startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT && npm run dev"
 
 [env]
 APP_ENV = "production"
