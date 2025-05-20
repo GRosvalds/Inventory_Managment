@@ -1,10 +1,11 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "npm ci && npm run build"
 
 [deploy]
-startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT && npm run dev"
+startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
 
 [env]
 APP_ENV = "production"
-APP_DEBUG = "true"  # Set to true temporarily for debugging
-LOG_CHANNEL = "stderr"  # Important for Railway logging
+APP_DEBUG = "true"
+NODE_VERSION = "18.x"  # Specify a modern Node version
