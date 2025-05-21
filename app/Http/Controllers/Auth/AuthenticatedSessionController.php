@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Mail\TwoFactorCodeMail;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,9 +36,18 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $userId = Auth::user()->getAuthIdentifier();
+        $user = User::findOrFail($userId);
 
-        return redirect()->intended(route('inventory', absolute: false));
+        $user->generateTwoFactorCode();
+
+        Auth::logout();
+
+        session(['2fa:user:id' => $user->id]);
+
+        Mail::to($user->email)->send(new TwoFactorCodeMail($user->twoFactorCode->code));
+
+        return redirect()->route('2fa.verify');
     }
 
     /**

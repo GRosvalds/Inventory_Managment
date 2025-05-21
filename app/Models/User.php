@@ -7,8 +7,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Random\RandomException;
 
 class User extends Authenticatable
 {
@@ -71,5 +73,23 @@ class User extends Authenticatable
     public function hasPermission(string $permission): bool
     {
         return $this->permissions()->where('name', $permission)->exists();
+    }
+
+    public function twoFactorCode(): HasOne
+    {
+        return $this->hasOne(TwoFactorCode::class);
+    }
+
+    /**
+     * @throws RandomException
+     */
+    public function generateTwoFactorCode(): void
+    {
+        $code = random_int(100000, 999999);
+
+        $this->twoFactorCode()->updateOrCreate([], [
+            'code' => $code,
+            'expires_at' => now()->addMinutes(10),
+        ]);
     }
 }

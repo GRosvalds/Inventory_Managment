@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\ItemLeaseController;
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -76,5 +77,8 @@ Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
     Route::put('/leases/{id}', [ItemLeaseController::class, 'update']);
     Route::get('/items/{itemId}/leases', [ItemLeaseController::class, 'itemLeases']);
 });
+
+Route::get('/2fa/verify', [TwoFactorController::class, 'show'])->name('2fa.verify');
+Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.check');
 
 require __DIR__.'/auth.php';
