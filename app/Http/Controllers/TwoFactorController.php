@@ -37,6 +37,10 @@ class TwoFactorController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('inventory'));
+        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+            return redirect()->intended('/inventory');
+        }
+
+        return redirect()->intended('/user-inventory');
     }
 }

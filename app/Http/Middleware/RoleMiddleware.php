@@ -14,7 +14,7 @@ class RoleMiddleware
         $user = $request->user();
 
         if (!$user) {
-            return redirect()->back()->with('error', 'You must be logged in.');
+            return redirect()->intended('/user-inventory')->with('error', 'You must be logged in.');
         }
 
         foreach ($roles as $role) {
@@ -23,6 +23,10 @@ class RoleMiddleware
             }
         }
 
-        return redirect()->back()->with('error', 'You do not have access to that page.');
+        if ($user->hasRole('moderator')) {
+            return redirect()->intended('/inventory')->with('error', 'You do not have access to that page.');
+        }
+
+        return redirect()->intended('/user-inventory')->with('error', 'You do not have access to that page.');
     }
 }

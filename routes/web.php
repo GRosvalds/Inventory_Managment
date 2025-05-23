@@ -16,7 +16,7 @@ Route::get('/', function () {
 
 Route::get('/user-inventory', function () {
     return Inertia::render('UserInventory');
-})->middleware(['auth', 'verified'])->name('user-inventory');
+})->middleware(['auth', 'role:admin,moderator,user'])->name('user-inventory');
 
 Route::get('/inventory', function () {
     return Inertia::render('Inventory');
@@ -28,11 +28,11 @@ Route::get('/inventory-dashboard', function () {
 
 Route::get('/user/{id}/leased-items', function ($id) {
     return Inertia::render('UserLeasedItems', ['userId' => $id]);
-})->middleware(['auth', 'verified'])->name('user.leased-items');
+})->middleware(['auth', 'role:admin,moderator,user'])->name('user.leased-items');
 
 Route::get('/lease-request-management', function () {
     return Inertia::render('LeaseRequestManagement');
-})->middleware(['auth', 'role:admin,moderator'])->name('lease-request-management');
+})->middleware(['auth', 'role:admin,moderator,user'])->name('lease-request-management');
 
 Route::get('/edit-profile', function () {
     return Inertia::render('Profile/Edit');
@@ -46,7 +46,7 @@ Route::get('/admin/leases', function () {
     return Inertia::render('Leases/AllLeases');
 })->middleware(['auth', 'role:admin,moderator']);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
