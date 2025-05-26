@@ -9,6 +9,7 @@ import LeasedItemsTable from '@/Components/LeasedItems/LeasedItemsTable';
 import ConfirmReturnModal from '@/Components/LeasedItems/ConfirmReturnModal';
 import ItemDetailsModal from '@/Components/LeasedItems/ItemDetailsModal';
 import EmptyState from '@/Components/LeasedItems/EmptyState';
+import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function UserLeasedItems({ userId }) {
     const [leasedItems, setLeasedItems] = useState([]);
@@ -21,6 +22,13 @@ function UserLeasedItems({ userId }) {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalItems: 0,
+        totalPages: 1,
+        perPage: 12
+    });
+
     useEffect(() => {
         fetchLeasedItems();
     }, []);
@@ -29,18 +37,37 @@ function UserLeasedItems({ userId }) {
         handleSearch(searchTerm);
     }, [searchTerm, leasedItems]);
 
-    const fetchLeasedItems = async () => {
+    const fetchLeasedItems = async (page = 1) => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`/api/user/${userId}/leased-items`);
-            setLeasedItems(response.data);
-            setFilteredItems(response.data);
+            const response = await axios.get(`/api/user/${userId}/leased-items`, {
+                params: { page, perPage: pagination.perPage }
+            });
+
+            if (response.data.data) {
+                setLeasedItems(response.data.data);
+                setFilteredItems(response.data.data);
+
+                setPagination({
+                    currentPage: response.data.current_page,
+                    totalItems: response.data.total,
+                    totalPages: response.data.last_page,
+                    perPage: response.data.per_page || pagination.perPage
+                });
+            } else {
+                setLeasedItems(response.data);
+                setFilteredItems(response.data);
+            }
         } catch (error) {
             console.error('Error fetching leased items:', error);
             showToast('Failed to fetch leased items', 'error');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handlePageChange = (pageNumber) => {
+        fetchLeasedItems(pageNumber);
     };
 
     const showToast = (message, type = 'success') => {
@@ -155,6 +182,15 @@ function UserLeasedItems({ userId }) {
                         )}
                     </div>
                 </motion.div>
+                {!isLoading && filteredItems.length > 0 && (
+                    <Pagination
+                        currentPage={pagination.currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={handlePageChange}
+                        totalItems={pagination.totalItems}
+                        itemsPerPage={pagination.perPage}
+                    />
+                )}
             </div>
 
             <AnimatePresence>

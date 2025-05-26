@@ -8,6 +8,7 @@ import SearchFilterSort from '@/Components/Leases/SearchFilterSort';
 import AllLeasesTable from '@/Components/Leases/AllLeasesTable';
 import LeaseDetailsModal from '@/Components/Leases/LeaseDetailsModal';
 import EmptyState from '@/Components/Leases/EmptyState';
+import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function AllLeases() {
     const [leases, setLeases] = useState([]);
@@ -19,6 +20,15 @@ function AllLeases() {
     const [selectedLease, setSelectedLease] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [statusFilter, setStatusFilter] = useState('all');
+    const [sortColumn, setSortColumn] = useState(null);
+    const [sortDirection, setSortDirection] = useState('asc');
+
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalItems: 0,
+        totalPages: 1,
+        perPage: 2
+    });
 
     useEffect(() => {
         fetchLeases();
@@ -28,12 +38,25 @@ function AllLeases() {
         handleFilter();
     }, [searchTerm, statusFilter, leases]);
 
-    const fetchLeases = async () => {
+    const fetchLeases = async (page = 1) => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/leases');
-            setLeases(response.data);
-            setFilteredLeases(response.data);
+            const response = await axios.get('/leases', {
+                params: { page, perPage: pagination.perPage }
+            });
+
+            if (response.data.data) {
+                setLeases(response.data.data);
+                setPagination({
+                    currentPage: response.data.current_page,
+                    totalItems: response.data.total,
+                    totalPages: response.data.last_page,
+                    perPage: response.data.per_page
+                });
+            } else {
+                setLeases(response.data);
+                setFilteredLeases(response.data);
+            }
         } catch (error) {
             console.error('Error fetching leases:', error);
             showToast('Failed to fetch leases', 'error');
@@ -115,6 +138,10 @@ function AllLeases() {
         return sortConfig.direction === 'ascending' ? '↑' : '↓';
     };
 
+    const handlePageChange = (pageNumber) => {
+        fetchLeases(pageNumber);
+    };
+
     return (
         <Layout>
             <Head title="All Leases" />
@@ -154,6 +181,13 @@ function AllLeases() {
                                 handleViewDetails={handleViewDetails}
                             />
                         )}
+                        <Pagination
+                            currentPage={pagination.currentPage}
+                            totalPages={pagination.totalPages}
+                            onPageChange={handlePageChange}
+                            totalItems={pagination.totalItems}
+                            itemsPerPage={pagination.perPage}
+                        />
                     </div>
                 </motion.div>
             </div>

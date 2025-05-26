@@ -9,6 +9,7 @@ import SearchFilter from "@/Components/Inventory/SearchFilter";
 import InventoryTable from "@/Components/Inventory/InventoryTable";
 import ItemModal from "@/Components/Inventory/ItemModal";
 import LeaseModal from "@/Components/Inventory/LeaseModal";
+import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function Inventory() {
     const { auth } = usePage().props;
@@ -32,6 +33,13 @@ function Inventory() {
         missingItems: 0
     });
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalItems: 0,
+        totalPages: 1,
+        perPage: 1
+    });
+
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 3000);
@@ -42,26 +50,45 @@ function Inventory() {
         fetchUsers();
     }, [search, categoryFilter, availabilityFilter]);
 
-    const fetchItems = async () => { // Tiek veikta priekšmetu datu iegūšana
+    const fetchItems = async (page = 1) => {
         setIsLoading(true);
         try {
             const inventoryResponse = await axios.get('api/inventory', {
-                params: { search, category: categoryFilter, availability: availabilityFilter }
+                params: {
+                    search,
+                    category: categoryFilter,
+                    availability: availabilityFilter,
+                    page: page,
+                    perPage: 12
+                }
             });
 
             const leaseResponse = await axios.get('/leases');
             const allLeases = leaseResponse.data;
-            const leaseCount = allLeases.length;
+            const leaseCount = allLeases.data.length;
 
-            const itemsWithLeases = inventoryResponse.data.map(item => {
-                return {
-                    ...item,
-                };
-            });
+            const itemsData = inventoryResponse.data.data || inventoryResponse.data;
+            const itemsWithLeases = Array.isArray(itemsData) ? itemsData.map(item => ({...item})) : [];
 
             setItems(itemsWithLeases);
 
-            const total = itemsWithLeases.length;
+            if (inventoryResponse.data.current_page) {
+                setPagination({
+                    currentPage: inventoryResponse.data.current_page,
+                    totalItems: inventoryResponse.data.total,
+                    totalPages: inventoryResponse.data.last_page,
+                    perPage: inventoryResponse.data.per_page || 12
+                });
+            } else {
+                setPagination({
+                    currentPage: page,
+                    totalItems: itemsWithLeases.length,
+                    totalPages: 1,
+                    perPage: 12
+                });
+            }
+
+            const total = inventoryResponse.data.total || itemsWithLeases.length;
             const leased = leaseCount;
             const missing = itemsWithLeases.filter(item => item.quantity === 0).length;
 
@@ -87,6 +114,10 @@ function Inventory() {
             console.error('Error fetching users:', error);
             showToast('Failed to load user data', 'error');
         }
+    };
+
+    const handlePageChange = (pageNumber) => {
+        fetchItems(pageNumber);
     };
 
     const openModal = (item = null) => {
@@ -230,7 +261,16 @@ function Inventory() {
                     openLeaseModal={openLeaseModal}
                     isItemLeasedByCurrentUser={isItemLeasedByCurrentUser}
                 />
+
+                <Pagination
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                    totalItems={pagination.totalItems}
+                    itemsPerPage={pagination.perPage}
+                />
             </div>
+
 
             <ItemModal
                 isOpen={isModalOpen}

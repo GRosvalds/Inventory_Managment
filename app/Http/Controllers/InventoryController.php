@@ -15,6 +15,7 @@ class InventoryController extends Controller
     public function index(Request $request)
     {
         $query = InventoryItem::query();
+        $perPage = $request->query('perPage', 12);
 
         if ($request->has('search')) {
             $search = $request->search;
@@ -31,7 +32,7 @@ class InventoryController extends Controller
             $query->orderBy($request->sort);
         }
 
-        return response()->json($query->get());
+        return response()->json($query->paginate($perPage));
     }
 
     public function createItem(Request $request): Response
@@ -72,11 +73,12 @@ class InventoryController extends Controller
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
-    public function getUserLeasedItems($id)
+    public function getUserLeasedItems(Request $request, int $id)
     {
         $user = User::findOrFail($id);
-        $leasedItems = ItemLease::where('user_id', $user->id)->with('item')->get();
+        $leasedItems = ItemLease::where('user_id', $user->id)->with('item');
+        $perPage = $request->query('perPage', 12);
 
-        return response()->json($leasedItems);
+        return response()->json($leasedItems->paginate($perPage));
     }
 }

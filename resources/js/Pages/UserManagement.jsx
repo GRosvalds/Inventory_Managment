@@ -8,6 +8,7 @@ import Toast from '@/Components/Common/Toast';
 import UserCard from '@/Components/User/UserCard';
 import UserFormModal from '@/Components/User/UserFormModal';
 import DeleteConfirmationModal from '@/Components/User/DeleteConfirmationModal';
+import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -19,6 +20,13 @@ function UserManagement() {
     const [currentUser, setCurrentUser] = useState(null);
     const [toast, setToast] = useState(null);
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalItems: 0,
+        totalPages: 1,
+        perPage: 8
+    });
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -27,12 +35,18 @@ function UserManagement() {
         handleSearch(searchTerm);
     }, [searchTerm, users]);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (page = 1) => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/users');
-            setUsers(response.data);
-            setFilteredUsers(response.data);
+            const response = await axios.get(`/users?page=${page}&perPage=${pagination.perPage}`);
+            setUsers(response.data.data);
+            setFilteredUsers(response.data.data);
+            setPagination({
+                currentPage: response.data.current_page,
+                totalItems: response.data.total,
+                totalPages: response.data.last_page,
+                perPage: response.data.per_page
+            });
         } catch (error) {
             console.error('Error fetching users:', error);
             showToast('Failed to load users', 'error');
@@ -96,6 +110,10 @@ function UserManagement() {
             console.error('Error deleting user:', error);
             showToast(error.response?.data?.message || 'Failed to delete user', 'error');
         }
+    };
+
+    const handlePageChange = (pageNumber) => {
+        fetchUsers(pageNumber);
     };
 
     const openAddModal = () => {
@@ -196,6 +214,13 @@ function UserManagement() {
                         </div>
                     )}
                 </div>
+                <Pagination
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                    totalItems={pagination.totalItems}
+                    itemsPerPage={pagination.perPage}
+                />
             </div>
 
             <UserFormModal

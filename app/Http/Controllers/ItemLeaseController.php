@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class ItemLeaseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $leases = ItemLease::with(['user', 'item'])->get();
+        $leases = ItemLease::with(['user', 'item']);
+        $perPage = $request->query('perPage', 12);
 
-        return response()->json($leases);
+        return response()->json($leases->paginate($perPage));
     }
 
     public function show($id)

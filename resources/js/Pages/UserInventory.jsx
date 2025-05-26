@@ -23,6 +23,13 @@ function UserInventory() {
     const [isLoading, setIsLoading] = useState(true);
     const [toast, setToast] = useState(null);
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalItems: 0,
+        totalPages: 1,
+        perPage: 12
+    });
+
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 3000);
@@ -36,12 +43,25 @@ function UserInventory() {
         setFilteredItems(items);
     }, [items]);
 
-    const fetchItems = async () => {
+    const fetchItems = async (page = 1) => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/inventory');
+            const response = await axios.get('/api/inventory', {
+                params: { page, perPage: pagination.perPage }
+            });
+
             setItems(response.data);
-            setFilteredItems(response.data);
+
+            if (response.data.current_page) {
+                setPagination({
+                    currentPage: response.data.current_page,
+                    totalItems: response.data.total,
+                    totalPages: response.data.last_page,
+                    perPage: response.data.per_page || 12
+                });
+            }
+
+            setFilteredItems(response.data.data || response.data);
         } catch (error) {
             console.error('Error fetching inventory:', error);
             showToast('Failed to load inventory items', 'error');
@@ -114,6 +134,10 @@ function UserInventory() {
         setFilteredItems(results);
     };
 
+    const handlePageChange = (pageNumber) => {
+        fetchItems(pageNumber);
+    };
+
     return (
         <Layout>
             <AnimatePresence>
@@ -137,8 +161,10 @@ function UserInventory() {
                     </div>
                 ) : (
                     <InventoryList
-                        items={filteredItems}
+                        items={items.data}
                         onAddToBasket={addToBasket}
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
                     />
                 )}
 

@@ -14,13 +14,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LeaseRequestController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $leaseRequests = LeaseRequest::with(['user', 'inventoryItem', 'approver'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->orderBy('created_at', 'desc');
+        $perPage = $request->query('perPage', 12);
 
-        return response()->json($leaseRequests);
+        return response()->json($leaseRequests->paginate($perPage));
     }
 
     public function create(): JsonResponse
