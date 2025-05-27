@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ItemLeaseController;
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
@@ -14,36 +15,42 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
-Route::get('/user-inventory', function () {
-    return Inertia::render('UserInventory');
-})->middleware(['auth', 'role:admin,moderator,user'])->name('user-inventory');
+Route::middleware(['log.activity'])->group(function () {
+    Route::get('/user-inventory', function () {
+        return Inertia::render('UserInventory');
+    })->middleware(['auth', 'role:admin,moderator,user'])->name('user-inventory');
 
-Route::get('/inventory', function () {
-    return Inertia::render('Inventory');
-})->middleware(['auth', 'role:admin,moderator'])->name('inventory');
+    Route::get('/inventory', function () {
+        return Inertia::render('Inventory');
+    })->middleware(['auth', 'role:admin,moderator'])->name('inventory');
 
-Route::get('/inventory-dashboard', function () {
-    return Inertia::render('InventoryDashboard');
-})->middleware(['auth', 'role:admin'])->name('inventory-dashboard');
+    Route::get('/inventory-dashboard', function () {
+        return Inertia::render('InventoryDashboard');
+    })->middleware(['auth', 'role:admin'])->name('inventory-dashboard');
 
-Route::get('/user/{id}/leased-items', function ($id) {
-    return Inertia::render('UserLeasedItems', ['userId' => $id]);
-})->middleware(['auth', 'role:admin,moderator,user'])->name('user.leased-items');
+    Route::get('/user/{id}/leased-items', function ($id) {
+        return Inertia::render('UserLeasedItems', ['userId' => $id]);
+    })->middleware(['auth', 'role:admin,moderator,user'])->name('user.leased-items');
 
-Route::get('/lease-request-management', function () {
-    return Inertia::render('LeaseRequestManagement');
-})->middleware(['auth', 'role:admin,moderator,user'])->name('lease-request-management');
+    Route::get('/lease-request-management', function () {
+        return Inertia::render('LeaseRequestManagement');
+    })->middleware(['auth', 'role:admin,moderator,user'])->name('lease-request-management');
 
-Route::get('/edit-profile', function () {
-    return Inertia::render('Profile/Edit');
-})->middleware(['auth', 'verified'])->name('edit');
+    Route::get('/edit-profile', function () {
+        return Inertia::render('Profile/Edit');
+    })->middleware(['auth', 'verified'])->name('edit');
 
-Route::get('/user-management', function () {
-    return Inertia::render('UserManagement');
-})->middleware(['auth', 'role:admin,moderator'])->name('user-management');
+    Route::get('/user-management', function () {
+        return Inertia::render('UserManagement');
+    })->middleware(['auth', 'role:admin,moderator'])->name('user-management');
 
-Route::get('/admin/leases', function () {
-    return Inertia::render('Leases/AllLeases');
+    Route::get('/admin/leases', function () {
+        return Inertia::render('Leases/AllLeases');
+    })->middleware(['auth', 'role:admin,moderator']);
+});
+
+Route::get('/admin/activity-logs', function () {
+    return Inertia::render('UserActivityLog');
 })->middleware(['auth', 'role:admin,moderator']);
 
 Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
@@ -76,9 +83,12 @@ Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
     Route::post('/leases', [ItemLeaseController::class, 'store']);
     Route::put('/leases/{id}', [ItemLeaseController::class, 'update']);
     Route::get('/items/{itemId}/leases', [ItemLeaseController::class, 'itemLeases']);
+
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::get('/api/active-users', [ActivityLogController::class, 'getActiveUsers']);
 });
 
 Route::get('/2fa/verify', [TwoFactorController::class, 'show'])->name('2fa.verify');
 Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.check');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

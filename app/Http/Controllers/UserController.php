@@ -15,8 +15,10 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        $users = User::orderBy('name')->get();
-        return response()->json($users);
+        $users = User::orderBy('name');
+        $perPage = request()->query('perPage', 12);
+
+        return response()->json($users->paginate($perPage));
     }
 
     public function store(Request $request): JsonResponse

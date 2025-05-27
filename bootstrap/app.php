@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\LogUserActivity;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\TrackUserActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,11 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
+            'log.activity' => LogUserActivity::class,
+            'track.user.activity' => TrackUserActivity::class,
         ]);
 
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\TrackUserActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
