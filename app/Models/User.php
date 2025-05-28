@@ -29,6 +29,7 @@ class User extends Authenticatable
         'role',
         'department',
         'last_login_at',
+        'blocked_at',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'blocked_at' => 'datetime',
         ];
     }
 
@@ -99,5 +101,22 @@ class User extends Authenticatable
             'code' => $code,
             'expires_at' => now()->addMinutes(10),
         ]);
+    }
+
+    public function isBlocked(): bool
+    {
+        return !is_null($this->blocked_at);
+    }
+
+    public function block(): bool
+    {
+        $this->blocked_at = now();
+        return $this->save();
+    }
+
+    public function unblock(): bool
+    {
+        $this->blocked_at = null;
+        return $this->save();
     }
 }

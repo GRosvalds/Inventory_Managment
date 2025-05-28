@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, User, Shield, Activity, Clock, MapPin, AlertCircle, Info } from 'lucide-react';
+import { X, User, Shield, Activity, Clock, MapPin, AlertCircle, Info, Lock, Unlock, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 
 function UserInfoModal({ ipAddress, user, logInfo, onClose }) {
     const [activeTab, setActiveTab] = useState('info');
     const [recentActivity, setRecentActivity] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isBlocking, setIsBlocking] = useState(false);
+    const [userData, setUserData] = useState(user);
 
     useEffect(() => {
         if (user && activeTab === 'activity') {
@@ -24,6 +26,34 @@ function UserInfoModal({ ipAddress, user, logInfo, onClose }) {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleBlockUser = async () => {
+        setIsBlocking(true);
+        try {
+            const response = await axios.post(`/users/${user.id}/block`);
+            setUserData({...userData, blocked_at: new Date().toISOString()});
+        } catch (error) {
+            console.error('Error blocking user:', error);
+        } finally {
+            setIsBlocking(false);
+        }
+    };
+
+    const handleUnblockUser = async () => {
+        setIsBlocking(true);
+        try {
+            const response = await axios.post(`/users/${user.id}/unblock`);
+            setUserData({...userData, blocked_at: null});
+        } catch (error) {
+            console.error('Error unblocking user:', error);
+        } finally {
+            setIsBlocking(false);
+        }
+    };
+
+    const isUserBlocked = () => {
+        return !!userData.blocked_at;
     };
 
     const formatDate = (dateString) => {
@@ -119,30 +149,46 @@ function UserInfoModal({ ipAddress, user, logInfo, onClose }) {
                                 <div className="bg-gray-200 rounded-full p-6 mb-4">
                                     <User size={64} className="text-gray-500" />
                                 </div>
-                                <h3 className="text-lg font-semibold">{user.name}</h3>
-                                <p className="text-gray-500">{user.email}</p>
+                                <h3 className="text-lg font-semibold">{userData.name}</h3>
+                                <p className="text-gray-500">{userData.email}</p>
 
                                 <div className="mt-4 bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
                                     <Shield size={14} className="mr-1" />
-                                    {user.roles[0]?.name || 'User'}
+                                    {userData.roles?.[0]?.name || userData.role || 'User'}
                                 </div>
+
+                                {isUserBlocked() && (
+                                    <div className="mt-2 bg-red-50 text-red-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
+                                        <AlertTriangle size={14} className="mr-1" />
+                                        Account Blocked
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-4">
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Account Status</h4>
-                                    <p className="font-medium text-green-600">Active</p>
+                                    <p className={`font-medium ${isUserBlocked() ? 'text-red-600' : 'text-green-600'}`}>
+                                        {isUserBlocked() ? 'Blocked' : 'Active'}
+                                    </p>
                                 </div>
 
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Registered Date</h4>
-                                    <p>{formatDate(user.created_at)}</p>
+                                    <p>{formatDate(userData.created_at)}</p>
                                 </div>
 
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Last Active</h4>
-                                    <p>{formatDate(user.last_login_at || user.updated_at)}</p>
+                                    <p>{formatDate(userData.last_login_at || userData.updated_at)}</p>
                                 </div>
+
+                                {isUserBlocked() && (
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-500">Blocked Since</h4>
+                                        <p className="text-red-600">{formatDate(userData.blocked_at)}</p>
+                                    </div>
+                                )}
 
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Last IP Address</h4>
@@ -150,6 +196,36 @@ function UserInfoModal({ ipAddress, user, logInfo, onClose }) {
                                         <MapPin size={14} className="mr-1 text-gray-400" />
                                         <span>{ipAddress || 'N/A'}</span>
                                     </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    {isUserBlocked() ? (
+                                        <button
+                                            onClick={handleUnblockUser}
+                                            disabled={isBlocking}
+                                            className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md shadow-sm transition-colors disabled:opacity-70"
+                                        >
+                                            {isBlocking ? (
+                                                <div className="animate-spin h-4 w-4 mr-2 border-2 border-b-transparent rounded-full"></div>
+                                            ) : (
+                                                <Unlock size={16} className="mr-2" />
+                                            )}
+                                            Unblock User
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={handleBlockUser}
+                                            disabled={isBlocking}
+                                            className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md shadow-sm transition-colors disabled:opacity-70"
+                                        >
+                                            {isBlocking ? (
+                                                <div className="animate-spin h-4 w-4 mr-2 border-2 border-b-transparent rounded-full"></div>
+                                            ) : (
+                                                <Lock size={16} className="mr-2" />
+                                            )}
+                                            Block User
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

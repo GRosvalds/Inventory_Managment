@@ -88,6 +88,11 @@ Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
     Route::get('/api/active-users', [ActivityLogController::class, 'getActiveUsers']);
 });
 
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
+    Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+});
+
 Route::get('/2fa/verify', [TwoFactorController::class, 'show'])->name('2fa.verify');
 Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.check');
 

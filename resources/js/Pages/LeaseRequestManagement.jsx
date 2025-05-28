@@ -22,7 +22,7 @@ function LeaseRequestManagement() {
         currentPage: 1,
         totalItems: 0,
         totalPages: 1,
-        perPage: 3
+        perPage: 8
     });
 
     const showToast = (message, type = 'success') => {
@@ -156,17 +156,17 @@ function LeaseRequestManagement() {
                         handleReject={handleReject}
                     />
                 </motion.div>
-            </div>
 
-            {!isLoading && (
-                <Pagination
-                    currentPage={pagination.currentPage}
-                    totalPages={pagination.totalPages}
-                    onPageChange={handlePageChange}
-                    totalItems={pagination.totalItems}
-                    itemsPerPage={pagination.perPage}
-                />
-            )}
+                {!isLoading && (
+                    <Pagination
+                        currentPage={pagination.currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={handlePageChange}
+                        totalItems={pagination.totalItems}
+                        itemsPerPage={pagination.perPage}
+                    />
+                )}
+            </div>
 
             <AnimatePresence>
                 {isDetailsModalOpen && (

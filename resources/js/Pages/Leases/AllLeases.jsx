@@ -27,7 +27,7 @@ function AllLeases() {
         currentPage: 1,
         totalItems: 0,
         totalPages: 1,
-        perPage: 2
+        perPage: 8
     });
 
     useEffect(() => {

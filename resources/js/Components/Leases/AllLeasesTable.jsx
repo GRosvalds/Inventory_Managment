@@ -50,7 +50,7 @@ export default function AllLeasesTable({
                             <td className="px-6 py-4 whitespace-nowrap">{formatDate(lease.lease_until)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 {isOverdue ? (
-                                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 items-center">
                                             <AlertTriangle size={14} className="mr-1" /> Overdue
                                         </span>
                                 ) : (

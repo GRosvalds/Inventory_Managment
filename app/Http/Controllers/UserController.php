@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        $users = User::orderBy('name');
+        $users = User::orderBy('name')->with('roles');
         $perPage = request()->query('perPage', 12);
 
         return response()->json($users->paginate($perPage));
@@ -91,5 +91,19 @@ class UserController extends Controller
 
         $user->delete();
         return response()->json(['success' => 'User deleted successfully']);
+    }
+
+    public function block(User $user): JsonResponse
+    {
+        $user->block();
+
+        return response()->json(['success' => 'User blocked successfully']);
+    }
+
+    public function unblock(User $user): JsonResponse
+    {
+        $user->unblock();
+
+        return response()->json(['success' => 'User unblocked successfully']);
     }
 }

@@ -112,6 +112,28 @@ function UserManagement() {
         }
     };
 
+    const handleBlockUser = async (user) => {
+        try {
+            await axios.post(`/users/${user.id}/block`);
+            fetchUsers();
+            showToast('User blocked successfully', 'success');
+        } catch (error) {
+            console.error('Error blocking user:', error);
+            showToast('Failed to block user', 'error');
+        }
+    };
+
+    const handleUnblockUser = async (user) => {
+        try {
+            await axios.post(`/users/${user.id}/unblock`);
+            fetchUsers();
+            showToast('User unblocked successfully', 'success');
+        } catch (error) {
+            console.error('Error unblocking user:', error);
+            showToast('Failed to unblock user', 'error');
+        }
+    };
+
     const handlePageChange = (pageNumber) => {
         fetchUsers(pageNumber);
     };
@@ -209,6 +231,8 @@ function UserManagement() {
                                     user={user}
                                     onEdit={openEditModal}
                                     onDelete={openDeleteModal}
+                                    onToggleBlock={handleBlockUser}
+                                    onToggleUnblock={handleUnblockUser}
                                 />
                             ))}
                         </div>
