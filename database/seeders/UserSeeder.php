@@ -17,15 +17,15 @@ class UserSeeder extends Seeder
         $userRole = Role::where('name', 'user')->first();
 
         $admin = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'Gabriels Rosvalds',
+            'email' => 'gabriels.rosvalds@gmail.com',
             'password' => bcrypt('password'),
         ]);
         $admin->roles()->attach($adminRole);
 
         $moderator = User::factory()->create([
-            'name' => 'Moderator User',
-            'email' => 'moderator@example.com',
+            'name' => 'Mareks Ozols',
+            'email' => 'gabriels.rosvalds.devs@gmail.com',
             'password' => bcrypt('password'),
         ]);
         $moderator->roles()->attach($moderatorRole);

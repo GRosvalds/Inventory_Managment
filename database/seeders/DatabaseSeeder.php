@@ -16,6 +16,12 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             PermissionSeeder::class,
+            RoleUserTableSeeder::class,
+            InventoryItemsTableSeeder::class,
+            ItemUserTableSeeder::class,
+            RequestStatusesTableSeeder::class,
+            LeaseRequestsTableSeeder::class,
+            LeaseExtensionRequestsTableSeeder::class,
         ]);
     }
 }
