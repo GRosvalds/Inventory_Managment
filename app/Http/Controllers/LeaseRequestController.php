@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\IpHelper;
+use App\Models\ActivityLog;
 use App\Models\InventoryItem;
 use App\Models\ItemLease;
 use App\Models\LeaseRequest;
@@ -55,6 +57,16 @@ class LeaseRequestController extends Controller
         $leaseRequest->status_id = LeaseRequest::PENDING;
         $leaseRequest->save();
 
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'create',
+            'description' => "Created lease request for item: ID-$item->id $item->name",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         return response()->json([
             'success' => 'Lease request submitted successfully',
             'lease_request' => $leaseRequest
@@ -67,7 +79,7 @@ class LeaseRequestController extends Controller
         return response()->json($leaseRequest);
     }
 
-    public function approve(LeaseRequest $leaseRequest): JsonResponse
+    public function approve(Request $request, LeaseRequest $leaseRequest): JsonResponse
     {
         $item = InventoryItem::findOrFail($leaseRequest->inventory_id);
 
@@ -92,13 +104,35 @@ class LeaseRequestController extends Controller
         $item->quantity -= $leaseRequest->quantity;
         $item->save();
 
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'create',
+            'description' => "Approved lease request for item: ID-$item->id $item->name, to user ID-$leaseRequest->user_id",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         return response()->json(['success' => 'Lease request approved successfully']);
     }
 
-    public function reject(LeaseRequest $leaseRequest): JsonResponse
+    public function reject(Request $request, LeaseRequest $leaseRequest): JsonResponse
     {
         $leaseRequest->status_id = LeaseRequest::REJECTED;
         $leaseRequest->save();
+
+        $item = InventoryItem::findOrFail($leaseRequest->inventory_id);
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'create',
+            'description' => "Rejected lease request for item: ID-$item->id $item->name, to user ID-$leaseRequest->user_id",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
 
         return response()->json(['success' => 'Lease request rejected']);
     }

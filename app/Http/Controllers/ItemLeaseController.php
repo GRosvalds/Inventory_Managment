@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\IpHelper;
+use App\Models\ActivityLog;
 use App\Models\ItemLease;
 use App\Models\InventoryItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ItemLeaseController extends Controller
 {
     public function index(Request $request)
     {
-        $leases = ItemLease::with(['user', 'item']);
+        $leases = ItemLease::with(['user', 'item'])->whereNull('deleted_at');
         $perPage = $request->query('perPage', 12);
 
         return response()->json($leases->paginate($perPage));
@@ -46,6 +49,16 @@ class ItemLeaseController extends Controller
         $item->quantity -= $item->quantity;
         $item->save();
 
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'create',
+            'description' => "Leased inventory item: ID-{$lease->id} {$item->name} to user ID-{$lease->user_id}",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         return response()->json($lease, 201);
     }
 
@@ -65,15 +78,53 @@ class ItemLeaseController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $originalValues = $lease->toArray();
+
         $lease->update($request->all());
+
+        $changes = [];
+        foreach ($request->all() as $key => $newValue) {
+            if (isset($originalValues[$key]) && $originalValues[$key] != $newValue) {
+                if ($key === 'lease_until') {
+                    $oldDate = date('Y-m-d', strtotime($originalValues[$key]));
+                    $newDate = date('Y-m-d', strtotime($newValue));
+                    $changes[] = "$key: '$oldDate' → '$newDate'";
+                } else {
+                    $changes[] = "$key: '{$originalValues[$key]}' → '$newValue'";
+                }
+            }
+        }
+
+        $changeLog = !empty($changes) ? " Changes: " . implode(", ", $changes) : "";
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'update',
+            'description' => "Updated lease: ID-{$lease->id} for item {$item->name}.$changeLog",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->header('User-Agent'),
+        ]);
 
         return response()->json($lease);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $lease = ItemLease::findOrFail($id);
-        $lease->delete();
+        $lease->deleted_at = now();
+        $lease->save();
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'delete',
+            'description' => "Deleted lease: ID-$lease->id",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
 
         return response()->json(null, 204);
     }
@@ -96,7 +147,7 @@ class ItemLeaseController extends Controller
         return response()->json($leases);
     }
 
-    public function returnLeasedItem(int $id)
+    public function returnLeasedItem(Request $request, int $id)
     {
         $lease = ItemLease::findOrFail($id);
         $item = InventoryItem::findOrFail($lease->inventory_item_id);
@@ -105,6 +156,16 @@ class ItemLeaseController extends Controller
         $item->save();
 
         $lease->delete();
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'delete',
+            'description' => "Deleted/Returned lease: ID-$lease->id",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
 
         return response()->json(null, 204);
     }

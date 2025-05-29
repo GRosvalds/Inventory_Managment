@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { UserCircle, AlertCircle, Clock } from 'lucide-react';
 
 function ActivityLogTable({ logs, isLoading, onViewUser }) {
-    console.log(logs)
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ItemLeaseController;
 use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
@@ -66,6 +67,14 @@ Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
+    Route::prefix('/api')->group(function () {
+        Route::get('/inventory', [InventoryController::class, 'index']);
+        Route::get('/user/{id}/leased-items', [InventoryController::class, 'getUserLeasedItems']);
+        Route::post('/inventory', [InventoryController::class, 'createItem']);
+        Route::put('/inventory/{id}', [InventoryController::class, 'update']);
+        Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
+    });
+
     Route::get('/lease-requests', [LeaseRequestController::class, 'index'])->name('lease-requests.index');
     Route::post('/lease-requests', [LeaseRequestController::class, 'store'])->name('lease-requests.store');
     Route::get('/lease-requests/{leaseRequest}', [LeaseRequestController::class, 'show'])->name('lease-requests.show');

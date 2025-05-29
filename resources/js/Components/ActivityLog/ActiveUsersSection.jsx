@@ -19,6 +19,7 @@ function ActiveUsersSection({ activeUsers, userType }) {
                 <div className="max-h-[500px] overflow-y-auto">
                     {activeUsers.map( user => (
                         <motion.div
+                            key={user.id}
                             className="p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50"
                         >
                             <div className="flex items-center">

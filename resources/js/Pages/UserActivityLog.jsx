@@ -53,7 +53,7 @@ function UserActivityLog() {
         return () => clearInterval(interval);
     }, [activeTab]);
 
-    const fetchLogs = async (page = 1) => {
+    const fetchLogs = async (page = 1, filters = {}) => {
         setIsLoading(true);
         try {
             const response = await axios.get('/activity-logs', {
@@ -62,8 +62,8 @@ function UserActivityLog() {
                     perPage: pagination.perPage,
                     userType: activeTab,
                     search: searchTerm,
-                    dateFilter,
-                    actionFilter
+                    dateFilter: filters.dateFilter || dateFilter,
+                    actionFilter: filters.actionFilter || actionFilter
                 }
             });
 
@@ -101,8 +101,11 @@ function UserActivityLog() {
         fetchLogs(1);
     };
 
-    const handleFilter = () => {
-        fetchLogs(1);
+    const handleFilter = ({ dateFilter: newDateFilter, actionFilter: newActionFilter } = {}) => {
+        fetchLogs(1, {
+            dateFilter: newDateFilter,
+            actionFilter: newActionFilter
+        });
     };
 
     const handleViewUser = (user, log = null) => {

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\IpHelper;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\ActivityLog;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +38,16 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'edit',
+            'description' => "Edited profile information",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
 
         return Redirect::route('profile.edit');
     }

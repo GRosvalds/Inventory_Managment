@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\IpHelper;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,6 +44,16 @@ class UserController extends Controller
         $user->department = $validated['department'] ?? null;
         $user->save();
 
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'create',
+            'description' => "Created user with user: ID-$user->id and name: $user->name",
+            'ip_address' => IpHelper::getClientIp($request),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         return response()->json($user, Response::HTTP_CREATED);
     }
 
@@ -51,6 +64,8 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
+        $originalValues = $user->toArray();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
@@ -69,8 +84,10 @@ class UserController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
+        $passwordChanged = false;
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+            $passwordChanged = true;
         }
 
         $user->phone = $validated['phone'] ?? $user->phone;
@@ -78,10 +95,37 @@ class UserController extends Controller
         $user->department = $validated['department'] ?? $user->department;
         $user->save();
 
+        $changes = [];
+        foreach ($validated as $key => $newValue) {
+            if ($key === 'password') {
+                continue;
+            }
+
+            if (isset($originalValues[$key]) && $originalValues[$key] !== ($newValue ?? $originalValues[$key])) {
+                $changes[] = "$key: '{$originalValues[$key]}' → '$newValue'";
+            }
+        }
+
+        if ($passwordChanged) {
+            $changes[] = "password: [changed]";
+        }
+
+        $changeLog = !empty($changes) ? " Changes: " . implode(", ", $changes) : "";
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'update',
+            'description' => "Updated user: ID-{$user->id} {$user->name}.$changeLog",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->header('User-Agent'),
+        ]);
+
         return response()->json($user);
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(Request $request, User $user): JsonResponse
     {
         if (auth()->id() === $user->id) {
             return response()->json([
@@ -90,6 +134,17 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'delete',
+            'description' => "Deleted user with user: ID-{$user->id} and name: {$user->name}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->header('User-Agent'),
+        ]);
+
         return response()->json(['success' => 'User deleted successfully']);
     }
 

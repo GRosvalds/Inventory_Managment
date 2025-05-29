@@ -17,6 +17,25 @@ class ActivityLogController extends Controller
         $query = ActivityLog::with(['user.roles']);
         $perPage = $request->query('perPage', 12);
 
+        if ($request->filled('userType')) {
+            if ($request->userType === 'users') {
+                $query->whereHas('user.roles', function($q) {
+                    $q->where('name', 'user');
+                })
+                    ->whereDoesntHave('user.roles', function($q) {
+                        $q->whereIn('name', ['moderator', 'admin']);
+                    });
+            } elseif ($request->userType === 'moderators') {
+                $query->whereHas('user.roles', function($q) {
+                    $q->where('name', 'moderator');
+                });
+            }
+        }
+
+        $query->whereDoesntHave('user.roles', function($q) {
+            $q->where('name', 'admin');
+        });
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -31,17 +50,15 @@ class ActivityLogController extends Controller
         }
 
         if ($request->filled('dateFilter') && $request->dateFilter !== 'all') {
-            $date = Carbon::now();
-
             switch ($request->dateFilter) {
                 case 'today':
-                    $query->whereDate('created_at', $date);
+                    $query->whereDate('created_at', Carbon::now());
                     break;
                 case 'week':
-                    $query->where('created_at', '>=', $date->subDays(7));
+                    $query->where('created_at', '>=', Carbon::now()->subDays(7));
                     break;
                 case 'month':
-                    $query->where('created_at', '>=', $date->subDays(30));
+                    $query->where('created_at', '>=', Carbon::now()->subDays(30));
                     break;
             }
         }
@@ -61,7 +78,7 @@ class ActivityLogController extends Controller
             if ($sortColumn === 'user.name') {
                 $query->join('users', 'activity_logs.user_id', '=', 'users.id')
                     ->orderBy('users.name', $sortDirection)
-                    ->select('*');
+                    ->select('activity_logs.*');
             } else {
                 $query->orderBy($sortColumn, $sortDirection);
             }
@@ -75,14 +92,30 @@ class ActivityLogController extends Controller
     public function getActiveUsers(Request $request): JsonResponse
     {
         $timeThreshold = Carbon::now()->subMinutes(15);
+        $userType = $request->query('userType', 'users');
 
         $query = User::with('activityLogs')
             ->whereHas('activityLogs', function ($query) use ($timeThreshold) {
                 $query->where('created_at', '>=', $timeThreshold);
-            })
-            ->orderBy('name')
-            ->get();
+            });
 
-        return response()->json($query);
+        if ($userType === 'users') {
+            $query->whereHas('roles', function($q) {
+                $q->where('name', 'user');
+            })
+                ->whereDoesntHave('roles', function($q) {
+                    $q->whereIn('name', ['moderator', 'admin']);
+                });
+        } elseif ($userType === 'moderators') {
+            $query->whereHas('roles', function($q) {
+                $q->where('name', 'moderator');
+            });
+        }
+
+        $query->whereDoesntHave('roles', function($q) {
+            $q->where('name', 'admin');
+        });
+
+        return response()->json($query->orderBy('name')->get());
     }
 }
