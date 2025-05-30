@@ -6,7 +6,7 @@ import { LayoutLeasedItems } from "@/Components/HeaderFooter.jsx";
 import Toast from '@/Components/Toast';
 import SearchFilter from '@/Components/LeasedItems/SearchFilter';
 import LeasedItemsTable from '@/Components/LeasedItems/LeasedItemsTable';
-import PendingLeasesTable from '@/components/UserPendingLeases/PendingLeasesTable';
+import PendingLeasesTable from '@/Components/UserPendingLeases/PendingLeasesTable';
 import ConfirmReturnModal from '@/Components/LeasedItems/ConfirmReturnModal';
 import ItemDetailsModal from '@/Components/LeasedItems/ItemDetailsModal';
 import EmptyState from '@/Components/LeasedItems/EmptyState';
