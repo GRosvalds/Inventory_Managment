@@ -32,8 +32,12 @@ class UserSeeder extends Seeder
         ]);
         $moderator->roles()->attach($moderatorRole);
 
-        User::factory(3)->create()->each(function ($user) use ($userRole) {
-            $user->roles()->attach($userRole);
-        });
+        $user = User::factory()->create([
+            'name' => 'Armands Auzenieks',
+            'email' => 'rosvalds4321@gmail.com',
+            'phone' => '0987654321',
+            'password' => bcrypt('password'),
+        ]);
+        $user->roles()->attach($userRole);
     }
 }
