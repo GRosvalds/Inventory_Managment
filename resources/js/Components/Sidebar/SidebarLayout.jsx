@@ -1,5 +1,5 @@
 import React from 'react';
-import Sidebar from './Sidebar';
+import Sidebar from './Sidebar.jsx';
 import { useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 

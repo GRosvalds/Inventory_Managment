@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layout } from "@/Components/HeaderFooter.jsx";
+import SidebarLayout from "@/Components/Sidebar/SidebarLayout.jsx";
 import Toast from '@/Components/Toast';
 import SearchFilterSort from '@/Components/Leases/SearchFilterSort';
 import AllLeasesTable from '@/Components/Leases/AllLeasesTable';
@@ -143,7 +143,7 @@ function AllLeases() {
     };
 
     return (
-        <Layout>
+        <SidebarLayout>
             <Head title="All Leases" />
             <div className="container mx-auto py-8 px-4">
                 <motion.div
@@ -211,7 +211,7 @@ function AllLeases() {
                     />
                 )}
             </AnimatePresence>
-        </Layout>
+        </SidebarLayout>
     );
 }
 

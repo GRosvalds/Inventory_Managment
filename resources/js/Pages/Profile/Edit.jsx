@@ -1,4 +1,4 @@
-import SidebarLayout from '@/Components/SidebarLayout';
+import SidebarLayout from '@/Components/Sidebar/SidebarLayout.jsx';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';

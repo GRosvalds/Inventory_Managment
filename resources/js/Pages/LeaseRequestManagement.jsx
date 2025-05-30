@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import SidebarLayout from "@/Components/SidebarLayout";
+import SidebarLayout from "@/Components/Sidebar/SidebarLayout.jsx";
 import Toast from '@/Components/Toast';
 import LeaseRequestFilters from '@/Components/LeaseRequestManagement/LeaseRequestFilters';
 import LeaseRequestsTable from '@/Components/LeaseRequestManagement/LeaseRequestsTable';

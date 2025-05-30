@@ -3,7 +3,7 @@ import axios from 'axios';
 import useTerminal from '../Hooks/useTerminal';
 import createCommandHandlers from '../Services/TerminalCommands';
 import Terminal from '../Components/Terminal/Terminal';
-import { SidebarLayout } from '../Components/SidebarLayout';
+import { SidebarLayout } from '../Components/Sidebar/SidebarLayout.jsx';
 import { motion } from 'framer-motion';
 import { Server, Users, AlertCircle, Terminal as TerminalIcon } from 'lucide-react';
 

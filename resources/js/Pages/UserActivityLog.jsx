@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { Layout } from "@/Components/HeaderFooter.jsx";
+import SidebarLayout from "@/Components/Sidebar/SidebarLayout.jsx";
 import Toast from "@/Components/Toast";
 import ActivityLogTabs from '@/Components/ActivityLog/ActivityLogTabs';
 import ActivityLogTable from '@/Components/ActivityLog/ActivityLogTable';
@@ -129,7 +129,7 @@ function UserActivityLog() {
     };
 
     return (
-        <Layout>
+        <SidebarLayout>
             <Head title="User Activity Log" />
 
             <AnimatePresence>
@@ -217,7 +217,7 @@ function UserActivityLog() {
                     />
                 )}
             </AnimatePresence>
-        </Layout>
+        </SidebarLayout>
     );
 }
 

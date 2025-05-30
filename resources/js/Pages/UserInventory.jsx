@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import InventoryList from '../Components/InventoryList';
-import BasketButton from '../Components/BasketButton';
+import BasketButton from '../Components/Basket/BasketButton.jsx';
 import BasketModal from '../Components/BasketModal';
 import LeaseRequestModal from '../Components/LeaseRequestModal';
 import LeaseExtensionModal from '../Components/LeaseExtensionModal';
