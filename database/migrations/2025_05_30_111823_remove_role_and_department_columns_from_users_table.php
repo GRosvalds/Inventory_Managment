@@ -8,22 +8,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
-        if (Schema::hasColumn('users', 'phone')) {
-            return;
-        }
-
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone')->after('email');
+            $table->dropColumn(['role', 'department']);
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('phone');
+            $table->string('role')->nullable();
+            $table->string('department')->nullable();
         });
     }
 };
