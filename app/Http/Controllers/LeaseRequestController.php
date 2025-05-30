@@ -146,4 +146,23 @@ class LeaseRequestController extends Controller
 
         return response()->json($leaseRequests);
     }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $leaseRequest = LeaseRequest::findOrFail($id);
+
+        $leaseRequest->delete();
+
+        $userId = Auth::id();
+
+        ActivityLog::create([
+            'user_id' => $userId,
+            'action' => 'delete',
+            'description' => "Deleted lease request ID-$leaseRequest->id",
+            'ip_address' => IpHelper::getClientIp(request()),
+            'user_agent' => request()->header('User-Agent'),
+        ]);
+
+        return response()->json(['success' => 'Lease request deleted successfully'], Response::HTTP_NO_CONTENT);
+    }
 }

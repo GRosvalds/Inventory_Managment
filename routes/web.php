@@ -9,6 +9,8 @@ use App\Http\Controllers\LeaseRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\UserController;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -45,14 +47,14 @@ Route::middleware(['log.activity'])->group(function () {
         return Inertia::render('UserManagement');
     })->middleware(['auth', 'role:admin,moderator'])->name('user-management');
 
-    Route::get('/admin/leases', function () {
+    Route::get('/admin-leases', function () {
         return Inertia::render('Leases/AllLeases');
     })->middleware(['auth', 'role:admin,moderator']);
 });
 
-Route::get('/admin/activity-logs', function () {
+Route::get('/activity-log', function () {
     return Inertia::render('UserActivityLog');
-})->middleware(['auth', 'role:admin,moderator']);
+})->middleware(['auth', 'role:admin']);
 
 Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -64,15 +66,19 @@ Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
 
     Route::delete('/leases/{id}', [ItemLeaseController::class, 'returnLeasedItem']);
     Route::get('/users/{userId}/leases', [ItemLeaseController::class, 'userLeases']);
+
+    Route::delete('/lease-requests/{id}', [LeaseRequestController::class, 'destroy'])->name('lease-requests.destroy');
 });
 
-Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
+Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
     Route::prefix('/api')->group(function () {
         Route::get('/inventory', [InventoryController::class, 'index']);
         Route::get('/user/{id}/leased-items', [InventoryController::class, 'getUserLeasedItems']);
         Route::post('/inventory', [InventoryController::class, 'createItem']);
         Route::put('/inventory/{id}', [InventoryController::class, 'update']);
         Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
+
+        Route::get('/user/{id}/pending-leases', [InventoryController::class, 'getUserPendingLeases']);
     });
 
     Route::get('/lease-requests', [LeaseRequestController::class, 'index'])->name('lease-requests.index');
@@ -100,6 +106,9 @@ Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
     Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+
+    Route::get('/roles', fn() => Role::all());
+    Route::get('/permissions', fn() => Permission::all());
 });
 
 Route::get('/2fa/verify', [TwoFactorController::class, 'show'])->name('2fa.verify');

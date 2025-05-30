@@ -8,6 +8,7 @@ use App\Helpers\IpHelper;
 use App\Models\ActivityLog;
 use App\Models\InventoryItem;
 use App\Models\ItemLease;
+use App\Models\LeaseRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -130,5 +131,16 @@ class InventoryController extends Controller
         $perPage = $request->query('perPage', 12);
 
         return response()->json($leasedItems->paginate($perPage));
+    }
+
+    public function getUserPendingLeases(Request $request, int $id)
+    {
+        $user = User::findOrFail($id);
+        $pendingLeases = LeaseRequest::where('user_id', $user->id)
+            ->where('status_id', '=', 1)
+            ->with('inventoryItem');
+        $perPage = $request->query('perPage', 12);
+
+        return response()->json($pendingLeases->paginate($perPage));
     }
 }

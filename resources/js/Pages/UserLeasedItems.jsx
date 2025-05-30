@@ -6,13 +6,16 @@ import { LayoutLeasedItems } from "@/Components/HeaderFooter.jsx";
 import Toast from '@/Components/Toast';
 import SearchFilter from '@/Components/LeasedItems/SearchFilter';
 import LeasedItemsTable from '@/Components/LeasedItems/LeasedItemsTable';
+import PendingLeasesTable from '@/components/UserPendingLeases/PendingLeasesTable';
 import ConfirmReturnModal from '@/Components/LeasedItems/ConfirmReturnModal';
 import ItemDetailsModal from '@/Components/LeasedItems/ItemDetailsModal';
 import EmptyState from '@/Components/LeasedItems/EmptyState';
 import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function UserLeasedItems({ userId }) {
+    const [activeTab, setActiveTab] = useState('active');
     const [leasedItems, setLeasedItems] = useState([]);
+    const [pendingLeases, setPendingLeases] = useState([]);
     const [filteredItems, setFilteredItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -31,6 +34,7 @@ function UserLeasedItems({ userId }) {
 
     useEffect(() => {
         fetchLeasedItems();
+        fetchPendingLeases();
     }, []);
 
     useEffect(() => {
@@ -63,6 +67,16 @@ function UserLeasedItems({ userId }) {
             showToast('Failed to fetch leased items', 'error');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchPendingLeases = async () => {
+        try {
+            const response = await axios.get(`/api/user/${userId}/pending-leases`);
+            setPendingLeases(response.data);
+        } catch (error) {
+            console.error('Error fetching pending leases:', error);
+            showToast('Failed to fetch pending leases', 'error');
         }
     };
 
@@ -154,43 +168,66 @@ function UserLeasedItems({ userId }) {
                 >
                     <div className="p-6 bg-blue-800 border-b border-gray-200">
                         <h1 className="text-2xl font-bold text-white mb-2">Your Leased Items</h1>
-                        <p className="text-blue-100">View and manage all items you currently have on lease</p>
+                        <p className="text-blue-100">View and manage all items you currently have on lease or pending</p>
                     </div>
 
                     <div className="p-6">
-                        <SearchFilter
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            onRefresh={fetchLeasedItems}
-                        />
+                        <div className="mb-4 flex gap-2">
+                            <button
+                                className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-blue-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                                onClick={() => setActiveTab('active')}
+                            >
+                                Active Leases
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded ${activeTab === 'pending' ? 'bg-blue-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                                onClick={() => setActiveTab('pending')}
+                            >
+                                Pending Requests
+                            </button>
+                        </div>
 
-                        {isLoading ? (
-                            <div className="flex justify-center items-center h-64">
-                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-800"></div>
-                            </div>
-                        ) : filteredItems.length === 0 ? (
-                            <EmptyState searchTerm={searchTerm} />
-                        ) : (
-                            <LeasedItemsTable
-                                filteredItems={filteredItems}
-                                handleSort={handleSort}
-                                getSortIcon={getSortIcon}
-                                formatDate={formatDate}
-                                setConfirmReturn={(id) => setConfirmReturn(id)}
-                                handleViewDetails={handleViewDetails}
-                            />
+                        {activeTab === 'active' && (
+                            <>
+                                <SearchFilter
+                                    searchTerm={searchTerm}
+                                    setSearchTerm={setSearchTerm}
+                                    onRefresh={fetchLeasedItems}
+                                />
+
+                                {isLoading ? (
+                                    <div className="flex justify-center items-center h-64">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-800"></div>
+                                    </div>
+                                ) : filteredItems.length === 0 ? (
+                                    <EmptyState searchTerm={searchTerm} />
+                                ) : (
+                                    <LeasedItemsTable
+                                        filteredItems={filteredItems}
+                                        handleSort={handleSort}
+                                        getSortIcon={getSortIcon}
+                                        formatDate={formatDate}
+                                        setConfirmReturn={(id) => setConfirmReturn(id)}
+                                        handleViewDetails={handleViewDetails}
+                                    />
+                                )}
+                                {!isLoading && filteredItems.length > 0 && (
+                                    <Pagination
+                                        currentPage={pagination.currentPage}
+                                        totalPages={pagination.totalPages}
+                                        onPageChange={handlePageChange}
+                                        totalItems={pagination.totalItems}
+                                        itemsPerPage={pagination.perPage}
+                                    />
+                                )}
+                            </>
+                        )}
+
+                        {activeTab === 'pending' && (
+                            <PendingLeasesTable userId={userId} showToast={showToast} />
                         )}
                     </div>
                 </motion.div>
-                {!isLoading && filteredItems.length > 0 && (
-                    <Pagination
-                        currentPage={pagination.currentPage}
-                        totalPages={pagination.totalPages}
-                        onPageChange={handlePageChange}
-                        totalItems={pagination.totalItems}
-                        itemsPerPage={pagination.perPage}
-                    />
-                )}
             </div>
 
             <AnimatePresence>
