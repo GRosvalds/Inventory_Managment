@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import {Head, usePage} from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import SidebarLayout from "@/Components/Sidebar/SidebarLayout.jsx";
@@ -11,6 +11,7 @@ import DeleteConfirmationModal from '@/Components/User/DeleteConfirmationModal';
 import Pagination from "@/Components/Pagination/Pagination.jsx";
 
 function UserManagement() {
+    const { auth } = usePage().props;
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -81,6 +82,7 @@ function UserManagement() {
             const response = await axios.post('/users', userData);
             setUsers([...users, response.data]);
             setIsFormModalOpen(false);
+            fetchUsers();
             showToast('User added successfully');
         } catch (error) {
             console.error('Error adding user:', error);
@@ -93,6 +95,7 @@ function UserManagement() {
             const response = await axios.put(`/users/${currentUser.id}`, userData);
             setUsers(users.map(user => user.id === currentUser.id ? response.data : user));
             setIsFormModalOpen(false);
+            fetchUsers();
             showToast('User updated successfully');
         } catch (error) {
             console.error('Error updating user:', error);
@@ -229,6 +232,7 @@ function UserManagement() {
                                 <UserCard
                                     key={user.id}
                                     user={user}
+                                    authUser={auth.user}
                                     onEdit={openEditModal}
                                     onDelete={openDeleteModal}
                                     onToggleBlock={handleBlockUser}

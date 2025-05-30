@@ -31,8 +31,9 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'phone' => 'nullable|string|max:20',
-            'role' => 'nullable|string|max:50',
-            'department' => 'nullable|string|max:100',
+            'role_id' => 'required|exists:roles,id',
+            'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $user = new User();
@@ -40,9 +41,13 @@ class UserController extends Controller
         $user->email = $validated['email'];
         $user->password = Hash::make($validated['password']);
         $user->phone = $validated['phone'] ?? null;
-        $user->role = $validated['role'] ?? 'user';
-        $user->department = $validated['department'] ?? null;
         $user->save();
+
+        $user->roles()->attach($validated['role_id']);
+
+        if (!empty($validated['permissions'])) {
+            $user->permissions()->sync($validated['permissions']);
+        }
 
         $userId = Auth::id();
 
@@ -77,8 +82,9 @@ class UserController extends Controller
             ],
             'password' => 'nullable|string|min:8',
             'phone' => 'nullable|string|max:20',
-            'role' => 'nullable|string|max:50',
-            'department' => 'nullable|string|max:100',
+            'role_id' => 'required|exists:roles,id',
+            'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $user->name = $validated['name'];
@@ -91,25 +97,24 @@ class UserController extends Controller
         }
 
         $user->phone = $validated['phone'] ?? $user->phone;
-        $user->role = $validated['role'] ?? $user->role;
-        $user->department = $validated['department'] ?? $user->department;
         $user->save();
+
+        $user->roles()->sync([$validated['role_id']]);
+
+        $user->permissions()->sync($validated['permissions'] ?? []);
 
         $changes = [];
         foreach ($validated as $key => $newValue) {
-            if ($key === 'password') {
+            if ($key === 'password' || $key === 'role_id' || $key === 'permissions') {
                 continue;
             }
-
             if (isset($originalValues[$key]) && $originalValues[$key] !== ($newValue ?? $originalValues[$key])) {
                 $changes[] = "$key: '{$originalValues[$key]}' → '$newValue'";
             }
         }
-
         if ($passwordChanged) {
             $changes[] = "password: [changed]";
         }
-
         $changeLog = !empty($changes) ? " Changes: " . implode(", ", $changes) : "";
 
         $userId = Auth::id();
