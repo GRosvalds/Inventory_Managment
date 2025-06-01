@@ -1,18 +1,18 @@
-# 📦 Inventory Management System
+# Inventory Management System
 
 A comprehensive inventory management solution built with Laravel and modern web technologies. Streamline your inventory operations with real-time tracking, automated alerts, and powerful analytics.
 
-## 🌐 Live Demo
+## Live Demo
 
 **Production Environment**: [imanagement.up.railway.app](https://imanagement.up.railway.app)
 
-## 📋 Documentation
+## Documentation
 
 📄 **Exam Documentation**: [Download rosvalds_Eksamena_Dokumentācija.docx](https://failiem.lv/u/57x733qrw7)
 
 ---
 
-## ✨ Features
+## Features
 
 - **Real-time Inventory Tracking** - Monitor stock levels instantly
 - **Advanced Reporting** - Generate comprehensive inventory reports
@@ -20,7 +20,7 @@ A comprehensive inventory management solution built with Laravel and modern web 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend**: Laravel 11.x (PHP 8.4)
 - **Frontend**: Blade Templates + React.js
@@ -30,7 +30,7 @@ A comprehensive inventory management solution built with Laravel and modern web 
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 
@@ -39,17 +39,17 @@ A comprehensive inventory management solution built with Laravel and modern web 
 
 ### Installation Steps
 
-#### 1️⃣ Clone the Repository
+#### Clone the Repository
 ```bash
 git clone https://github.com/GRosvalds/Inventory_Managment.git
 ```
 
-#### 2️⃣ Navigate to Project Directory
+#### Navigate to Project Directory
 ```bash
 cd inventory-managment
 ```
 
-#### 3️⃣ Install PHP Dependencies
+#### Install PHP Dependencies
 ```bash
 docker run --rm \
  -u "$(id -u):$(id -g)" \
@@ -59,7 +59,7 @@ docker run --rm \
  composer install --ignore-platform-reqs
 ```
 
-#### 4️⃣ Environment Configuration
+#### Environment Configuration
 ```bash
 # Create environment file
 cp .env.example .env
@@ -68,7 +68,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-#### 5️⃣ Configure Docker Environment
+#### Configure Docker Environment
 ```bash
 # Install Laravel Sail
 php artisan sail:install
@@ -86,19 +86,19 @@ php artisan sail:install
 > docker rm -f <container_id>
 > ```
 
-#### 6️⃣ Install Frontend Dependencies
+#### Install Frontend Dependencies
 ```bash
 ./vendor/bin/sail npm install
 ```
 
-#### 7️⃣ Database Setup
+#### Database Setup
 ```bash
 # Run migrations and seed data
 ./vendor/bin/sail artisan migrate:fresh --seed
 ```
 *Note: The seeder will prompt you to specify the number of sample records to create for different entity types.*
 
-#### 8️⃣ Build Frontend Assets
+#### Build Frontend Assets
 ```bash
 # For development
 ./vendor/bin/sail npm run dev
@@ -109,7 +109,7 @@ php artisan sail:install
 
 ---
 
-## 🌐 Application Access
+## Application Access
 
 | Service | URL | Description |
 |---------|-----|-------------|
@@ -121,7 +121,7 @@ php artisan sail:install
 - **Password**: `password`
 ---
 
-## 👤 Default Login Credentials
+## Default Login Credentials
 
 Get started immediately with these pre-configured accounts:
 
@@ -133,7 +133,7 @@ Get started immediately with these pre-configured accounts:
 
 ---
 
-## 📋 Available Commands
+## Available Commands
 
 ### Development Commands
 ```bash
@@ -162,7 +162,7 @@ Get started immediately with these pre-configured accounts:
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 inventory-management/
@@ -180,10 +180,10 @@ inventory-management/
 └── docker-compose.yml    # Docker configuration
 ```
 
-## 📞 Support
+## Support
 
 For support and questions:
-- 📧 Email: gabriels.rosvalds@gmail.com
+-  Email: gabriels.rosvalds@gmail.com
 ---
 
 <div align="center">
