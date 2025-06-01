@@ -183,5 +183,5 @@ For support and questions:
 ---
 
 <div align="center">
-  <p>Made with ❤️ for efficient inventory management</p>
+  <p>Made for efficient inventory management</p>
 </div>
