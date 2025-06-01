@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Helpers\IpHelper;
+use App\Mail\LeaseReturnedNotificationMail;
 use App\Models\ActivityLog;
 use App\Models\ItemLease;
 use App\Models\InventoryItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ItemLeaseController extends Controller
@@ -166,6 +169,18 @@ class ItemLeaseController extends Controller
             'ip_address' => IpHelper::getClientIp($request),
             'user_agent' => $request->header('User-Agent'),
         ]);
+
+        $moderators = User::whereHas('roles', function($q) {
+            $q->where('name', 'moderator');
+        })->get();
+
+        $returningUser = User::find($userId);
+
+        foreach ($moderators as $moderator) {
+            Mail::to($moderator->email)->send(
+                new LeaseReturnedNotificationMail($item, $lease, $returningUser)
+            );
+        }
 
         return response()->json(null, 204);
     }

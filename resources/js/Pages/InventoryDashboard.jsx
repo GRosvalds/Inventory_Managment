@@ -33,13 +33,13 @@ const InventoryDashboard = () => {
 
     const fetchItems = useCallback(async () => {
         try {
-            setIsLoading(true);
             const response = await axios.get('/api/inventory');
-            setItems(response.data);
+            const itemsArray = Array.isArray(response.data.data) ? response.data.data : [];
+            setItems(itemsArray);
 
-            const total = response.data.length;
-            const leased = response.data.filter(item => item.users && item.users.length > 0).length;
-            const missing = response.data.filter(item => item.quantity === 0).length;
+            const total = itemsArray.length;
+            const leased = itemsArray.filter(item => item.users && item.users.length > 0).length;
+            const missing = itemsArray.filter(item => item.quantity === 0).length;
 
             setStats({
                 totalItems: total,
@@ -48,9 +48,8 @@ const InventoryDashboard = () => {
             });
         } catch (error) {
             console.error('Error fetching inventory:', error);
-        } finally {
-            setIsLoading(false);
         }
+        setIsLoading(false);
     }, []);
 
     const fetchUsers = useCallback(async () => {

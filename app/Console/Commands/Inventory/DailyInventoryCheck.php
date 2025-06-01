@@ -17,9 +17,16 @@ class DailyInventoryCheck extends Command
 
     public function handle()
     {
-        $itemsWithDiscrepancies = InventoryItem::with('leases')->get()->filter(function ($item) {
+        $now = now();
+
+        $itemsWithDiscrepancies = InventoryItem::with('leases')->get()->filter(function ($item) use ($now) {
             $missing = $item->initial_quantity - $item->quantity;
-            $leased = $item->leases->sum('quantity');
+
+            $leased = $item->leases
+                ->filter(function ($lease) use ($now) {
+                    return $lease->lease_until && $now->lessThanOrEqualTo($lease->lease_until);
+                })
+                ->sum('quantity');
 
             return $missing !== $leased;
         });

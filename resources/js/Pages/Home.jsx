@@ -136,7 +136,7 @@ function Home() {
                 <div className="max-w-7xl mx-auto text-center">
                     <h3 className="text-2xl font-bold text-white mb-4">Inventory Management System</h3>
                     <p className="mb-6">The complete solution for tracking and managing your inventory</p>
-                    <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} Inventory Management System. All rights reserved.</p>
                 </div>
             </footer>
         </div>

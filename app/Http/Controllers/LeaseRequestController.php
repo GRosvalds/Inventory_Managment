@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Helpers\IpHelper;
+use App\Mail\LeaseRequestApprovedMail;
+use App\Mail\LeaseRequestNotificationMail;
+use App\Mail\LeaseRequestRejectedMail;
 use App\Models\ActivityLog;
 use App\Models\InventoryItem;
 use App\Models\ItemLease;
 use App\Models\LeaseRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -67,6 +72,18 @@ class LeaseRequestController extends Controller
             'user_agent' => $request->header('User-Agent'),
         ]);
 
+        $moderators = User::whereHas('roles', function($q) {
+            $q->where('name', 'moderator');
+        })->get();
+
+        $requestingUser = User::find($validated['user_id']);
+
+        foreach ($moderators as $moderator) {
+            Mail::to($moderator->email)->send(
+                new LeaseRequestNotificationMail($leaseRequest, $requestingUser)
+            );
+        }
+
         return response()->json([
             'success' => 'Lease request submitted successfully',
             'lease_request' => $leaseRequest
@@ -114,6 +131,8 @@ class LeaseRequestController extends Controller
             'user_agent' => $request->header('User-Agent'),
         ]);
 
+        Mail::to($leaseRequest->user->email)->send(new LeaseRequestApprovedMail($leaseRequest));
+
         return response()->json(['success' => 'Lease request approved successfully']);
     }
 
@@ -133,6 +152,8 @@ class LeaseRequestController extends Controller
             'ip_address' => IpHelper::getClientIp($request),
             'user_agent' => $request->header('User-Agent'),
         ]);
+
+        Mail::to($leaseRequest->user->email)->send(new LeaseRequestRejectedMail($leaseRequest));
 
         return response()->json(['success' => 'Lease request rejected']);
     }
