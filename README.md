@@ -6,6 +6,10 @@ A comprehensive inventory management solution built with Laravel and modern web 
 
 **Production Environment**: [imanagement.up.railway.app](https://imanagement.up.railway.app)
 
+## 📋 Documentation
+
+📄 **Exam Documentation**: [Download rosvalds_Eksamena_Dokumentācija.docx](https://failiem.lv/u/57x733qrw7)
+
 ---
 
 ## ✨ Features
