@@ -2,7 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Home, Package, Clipboard, User, LogOut, Menu, X, Users, FileText, ChevronsRight, ChevronsLeft, ActivityIcon
+    Home,
+    Package,
+    Clipboard,
+    User,
+    LogOut,
+    Menu,
+    X,
+    Users,
+    FileText,
+    ChevronsRight,
+    ChevronsLeft,
+    ActivityIcon,
+    HistoryIcon
 } from 'lucide-react';
 
 const navItems = [
@@ -14,6 +26,7 @@ const navItems = [
     { name: 'Profile', icon: User, route: 'profile.edit' },
     { name: 'Users', icon: Users, href: 'user-management' },
     { name: 'Activity Log', icon: ActivityIcon, href: 'activity-log' },
+    { name: 'Inventory Check History', icon: HistoryIcon, route: 'check-history' },
 ];
 
 const sidebarWidths = [0, 64, 280];

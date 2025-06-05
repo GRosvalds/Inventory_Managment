@@ -15,6 +15,9 @@ export default function LeasedItemsTable({
             <table className="min-w-full">
                 <thead className="bg-gray-50">
                 <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Photo
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('item.name')}>
                         Item Name {getSortIcon('item.name')}
                     </th>
@@ -35,6 +38,17 @@ export default function LeasedItemsTable({
                 <tbody className="bg-white divide-y divide-gray-200">
                 {filteredItems.map((lease) => (
                     <tr key={`lease-${lease.id}`} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            {lease.item?.photo_url ? (
+                                <img
+                                    src={lease.item.photo_url}
+                                    alt={lease.item?.name}
+                                    className="h-12 w-12 object-cover rounded"
+                                />
+                            ) : (
+                                <span className="text-gray-400">No photo</span>
+                            )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">{lease.item?.name}</td>
                         <td className="px-6 py-4">{lease.item?.description}</td>
                         <td className="px-6 py-4 whitespace-nowrap">{lease.quantity || 1}</td>
@@ -58,6 +72,24 @@ export default function LeasedItemsTable({
                                     <RotateCcw size={16} />
                                 </motion.button>
                             </div>
+                        </td>
+                        <td className="px-4 py-2">
+                            <button
+                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                onClick={async () => {
+                                    const url = prompt('Enter new photo URL:');
+                                    if (url) {
+                                        try {
+                                            await axios.put(`/inventory/${lease.item.id}/photo-url`, { photo_url: url });
+                                            alert('Photo URL updated!');
+                                        } catch (error) {
+                                            alert('Failed to update photo URL');
+                                        }
+                                    }
+                                }}
+                            >
+                                Upload Photo URL
+                            </button>
                         </td>
                     </tr>
                 ))}

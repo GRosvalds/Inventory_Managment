@@ -29,7 +29,8 @@ export default function createCommandHandlers(items, users, stats, fetchItems, f
                 "roles - List all roles",
                 "permissions - List all permissions",
                 "block user [id] - Block a user",
-                "unblock user [id] - Unblock a user"
+                "unblock user [id] - Unblock a user",
+                "check - Show inventory check history"
             ];
             commands.forEach(cmd => addOutput(cmd));
         },
@@ -424,6 +425,29 @@ export default function createCommandHandlers(items, users, stats, fetchItems, f
             await fetchItems();
             await fetchUsers();
             addOutput("Data refreshed successfully");
-        }
+        },
+
+        check: async (args, addOutput) => {
+            if (args.length < 1 || args[0] !== "check") {
+                addOutput("Usage: check");
+                return;
+            }
+            try {
+                const { data } = await axios.get('/inventory-check-history');
+                if (Array.isArray(data.data) && data.data.length > 0) {
+                    addOutput("ID | DESCRIPTION | ACTION | DATE");
+                    addOutput("----------------------------------------");
+                    data.data.forEach(log => {
+                        addOutput(
+                            `${log.id} | ${log.description} | ${log.action} | ${new Date(log.created_at).toLocaleString()}`
+                        );
+                    });
+                } else {
+                    addOutput("No inventory check history found.");
+                }
+            } catch (error) {
+                addOutput(`Failed to fetch inventory check history: ${error.response?.data?.message || error.message}`);
+            }
+        },
     };
 }

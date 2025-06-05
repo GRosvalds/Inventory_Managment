@@ -9,8 +9,8 @@ function InventoryList({ items, onAddToBasket, pagination, onPageChange }) {
                     items.map(item => (
                         <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                             <div className="h-48 bg-gray-200 flex items-center justify-center">
-                                {item.image ? (
-                                    <img src={item.image} alt={item.name} className="object-cover h-full w-full" />
+                                {item.photo_url ? (
+                                    <img src={item.photo_url} alt={item.name} className="object-cover h-full w-full" />
                                 ) : (
                                     <div className="text-4xl text-gray-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">

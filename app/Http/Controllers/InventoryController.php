@@ -18,7 +18,7 @@ class InventoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = InventoryItem::query()->whereNull('deleted_at');
+        $query = InventoryItem::query();
         $perPage = $request->query('perPage', 12);
 
         if ($request->has('search')) {
@@ -109,8 +109,7 @@ class InventoryController extends Controller
     public function destroy(Request $request, $id)
     {
         $item = InventoryItem::findOrFail($id);
-        $item->deleted_at = now();
-        $item->save();
+        $item->delete();
 
         $userId = Auth::id();
 
@@ -142,5 +141,18 @@ class InventoryController extends Controller
         $perPage = $request->query('perPage', 12);
 
         return response()->json($pendingLeases->paginate($perPage));
+    }
+
+    public function uploadPhotoUrl(Request $request, $id)
+    {
+        $request->validate([
+            'photo_url' => 'required|url|max:255',
+        ]);
+
+        $item = InventoryItem::findOrFail($id);
+        $item->photo_url = $request->photo_url;
+        $item->save();
+
+        return response()->json(['message' => 'Photo URL updated', 'item' => $item]);
     }
 }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\InventoryCheckHistoryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ItemLeaseController;
 use App\Http\Controllers\LeaseRequestController;
@@ -50,7 +51,12 @@ Route::middleware(['log.activity'])->group(function () {
     Route::get('/admin-leases', function () {
         return Inertia::render('Leases/AllLeases');
     })->middleware(['auth', 'role:admin,moderator']);
+
 });
+
+Route::get('/inventory-checks-history', function () {
+    return Inertia::render('InventoryCheckHistory');
+})->middleware(['auth', 'role:admin'])->name('check-history');
 
 Route::get('/activity-log', function () {
     return Inertia::render('UserActivityLog');
@@ -68,6 +74,8 @@ Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
     Route::get('/users/{userId}/leases', [ItemLeaseController::class, 'userLeases']);
 
     Route::delete('/lease-requests/{id}', [LeaseRequestController::class, 'destroy'])->name('lease-requests.destroy');
+
+    Route::put('/inventory/{id}/photo-url', [InventoryController::class, 'uploadPhotoUrl']);
 });
 
 Route::middleware(['auth', 'role:admin,moderator,user'])->group(function () {
@@ -109,6 +117,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/roles', fn() => Role::all());
     Route::get('/permissions', fn() => Permission::all());
+
+    Route::get('/inventory-check-history', [InventoryCheckHistoryController::class, 'index']);
+
 });
 
 Route::get('/2fa/verify', [TwoFactorController::class, 'show'])->name('2fa.verify');

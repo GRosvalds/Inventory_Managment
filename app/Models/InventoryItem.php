@@ -18,6 +18,7 @@ class InventoryItem extends Model
     const ESTIMATED_PRICE = 'estimated_price';
     const ITEM_USER = 'item_user';
     const LEASED_UNTIL = 'lease_until';
+    const PHOTO_URL = 'photo_url';
 
     protected $fillable = [
         self::NAME,
@@ -26,6 +27,7 @@ class InventoryItem extends Model
         self::QUANTITY,
         self::CATEGORY,
         self::ESTIMATED_PRICE,
+        self::PHOTO_URL,
     ];
 
     public function users(): BelongsToMany

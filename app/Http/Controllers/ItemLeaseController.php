@@ -19,7 +19,7 @@ class ItemLeaseController extends Controller
 {
     public function index(Request $request)
     {
-        $leases = ItemLease::with(['user', 'item'])->whereNull('deleted_at');
+        $leases = ItemLease::with(['user', 'item']);
         $perPage = $request->query('perPage', 12);
 
         return response()->json($leases->paginate($perPage));
@@ -49,7 +49,7 @@ class ItemLeaseController extends Controller
 
         $lease = ItemLease::create($request->all());
 
-        $item->quantity -= $item->quantity;
+        $item->quantity -= $lease->quantity;
         $item->save();
 
         $userId = Auth::id();
@@ -116,8 +116,7 @@ class ItemLeaseController extends Controller
     public function destroy(Request $request, $id)
     {
         $lease = ItemLease::findOrFail($id);
-        $lease->deleted_at = now();
-        $lease->save();
+        $lease->delete();
 
         $userId = Auth::id();
 
