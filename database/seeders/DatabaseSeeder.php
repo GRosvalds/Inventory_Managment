@@ -37,8 +37,8 @@ class DatabaseSeeder extends Seeder
         if (DB::table('lease_requests')->count() === 0) {
             $this->call(LeaseRequestsTableSeeder::class);
         }
-        if (DB::table('lease_extension_requests')->count() === 0) {
-            $this->call(LeaseExtensionRequestsTableSeeder::class);
-        }
+//        if (DB::table('lease_extension_requests')->count() === 0) {
+//            $this->call(LeaseExtensionRequestsTableSeeder::class);
+//        }
     }
 }
