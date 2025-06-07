@@ -8,7 +8,7 @@ A comprehensive inventory management solution built with Laravel and modern web 
 
 ## Documentation
 
-📄 **Exam Documentation**: [Download rosvalds_Eksamena_Dokumentācija.docx](https://failiem.lv/u/57x733qrw7)
+📄 **Exam Documentation**: [Download Rosvalds_Eksamena_Dokumentācija.docx && Rosvalds_Eksamena_Dokumentācija.pdf](https://failiem.lv/u/57x733qrw7)
 
 ---
 
