@@ -68,6 +68,25 @@ cp .env.example .env
 php artisan key:generate
 ```
 
+#### Paste these into .env
+```bash
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=465
+MAIL_USERNAME=lvt.4pt@gmail.com
+MAIL_PASSWORD=npdwkuswhumpooct
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS="lvt.4pt@gmail.com"
+MAIL_FROM_NAME="Invenotory_Managment"
+```
+
 #### Configure Docker Environment
 ```bash
 # Install Laravel Sail
