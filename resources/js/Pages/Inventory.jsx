@@ -59,7 +59,7 @@ function Inventory() {
                     category: categoryFilter,
                     availability: availabilityFilter,
                     page: page,
-                    perPage: 12
+                    perPage: 5
                 }
             });
 

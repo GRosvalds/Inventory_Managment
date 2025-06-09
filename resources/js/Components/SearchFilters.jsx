@@ -15,6 +15,20 @@ function SearchFilters({ onFilter }) {
         });
     };
 
+    const filterByAvailability = (items, availability) => {
+        if (!availability) return items;
+        if (availability === "available") {
+            return items
+        }
+        if (availability === "limited") {
+            return items.filter(item => item.quantity > 0 && item.quantity < 5);
+        }
+        if (availability === "not_available") {
+            return items.filter(item => item.quantity === 0);
+        }
+        return items;
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -44,9 +58,10 @@ function SearchFilters({ onFilter }) {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-800 focus:border-blue-800"
                     >
                         <option value="">All Categories</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="furniture">Furniture</option>
-                        <option value="office">Office Supplies</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
 
@@ -60,6 +75,7 @@ function SearchFilters({ onFilter }) {
                             <option value="">All Items</option>
                             <option value="available">Available Now</option>
                             <option value="limited">Limited Stock</option>
+                            <option value="not_available">Not Available</option>
                         </select>
 
                         <motion.button

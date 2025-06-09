@@ -9,7 +9,7 @@ import { Layout } from "@/Components/HeaderFooter.jsx";
 import SearchFilters from '@/Components/SearchFilters';
 import { AnimatePresence } from 'framer-motion';
 import { Toast } from '@/Components/LeaseRequestModal';
-import {usePage} from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 
 function UserInventory() {
     const { auth } = usePage().props;
@@ -40,7 +40,7 @@ function UserInventory() {
     }, []);
 
     useEffect(() => {
-        setFilteredItems(items);
+        setFilteredItems(items.data || items);
     }, [items]);
 
     const fetchItems = async (page = 1) => {
@@ -111,7 +111,7 @@ function UserInventory() {
     };
 
     const handleFilterChange = (filters) => {
-        let results = [...items];
+        let results = [...(items.data || items)];
 
         if (filters.search) {
             const searchLower = filters.search.toLowerCase();
@@ -161,7 +161,7 @@ function UserInventory() {
                     </div>
                 ) : (
                     <InventoryList
-                        items={items.data}
+                        items={filteredItems}
                         onAddToBasket={addToBasket}
                         pagination={pagination}
                         onPageChange={handlePageChange}
