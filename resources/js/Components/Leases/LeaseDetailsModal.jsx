@@ -164,13 +164,6 @@ export default function LeaseDetailsModal({ lease, onClose, formatDate }) {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <h4 className="font-medium text-gray-700 mb-3">User History</h4>
-                                <p className="text-sm text-gray-600">
-                                    This section could show the user's lease history, account status, or other relevant information.
-                                </p>
-                            </div>
                         </div>
                     </div>
                 )}
@@ -202,7 +195,7 @@ export default function LeaseDetailsModal({ lease, onClose, formatDate }) {
                                     <div className="flex items-center">
                                         <DollarSign size={16} className="mr-1 text-gray-500" />
                                         <span className="text-gray-900">
-                                            ${parseFloat(lease.item?.estimated_price || 0).toFixed(2)}
+                                            {parseFloat(lease.item?.estimated_price || 0).toFixed(2)}
                                         </span>
                                     </div>
                                 </div>
